@@ -79,16 +79,6 @@ export default function AcercaPage() {
                 </div>
               </div>
             </div>
-
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-300">
-              <h4 className="font-semibold text-gray-800 mb-2">Metodología de Desarrollo</h4>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                El proyecto fue desarrollado mediante una colaboración entre ambas IAs: ChatGPT proporcionó la base
-                conceptual y pedagógica del contenido matemático, mientras que V0 se encargó de la implementación
-                técnica y el diseño de la interfaz de usuario. Esta sinergia permitió crear una herramienta educativa
-                que combina rigor académico con una experiencia de usuario moderna e intuitiva.
-              </p>
-            </div>
           </CardContent>
         </Card>
 

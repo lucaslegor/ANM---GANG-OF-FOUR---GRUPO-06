@@ -147,7 +147,7 @@ export default function SignificantFiguresPresentation() {
 
               {showPiCalculation && (
                 <div className="space-y-2 animate-in fade-in duration-500 text-sm">
-                  <p>• Una centésima es igual a 10^(-2) o 0.01</p>
+                  <p>• Una centésima es igual a 10^(-2) 0.01</p> 
                   <p>• Dividimos el orden a la mitad: 1/2 × 0.01 = 0.005</p>
                   <p>• Verificación: |π - 3.14| = |3.14159 - 3.14| = 0.00159</p>
                   <p className="font-semibold text-[#26a7df]">• Como 0.00159 ≤ 0.005, la cota de error se cumple ✓</p>

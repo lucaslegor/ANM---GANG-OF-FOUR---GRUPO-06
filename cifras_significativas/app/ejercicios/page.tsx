@@ -24,6 +24,7 @@ export default function EjerciciosPage() {
             Volver
           </Button>
           <h1 className="text-4xl font-bold text-[#ea1f27] text-balance">Ejercicio N°5 - Práctica 1</h1>
+
         </div>
 
         {/* Exercise A */}
@@ -59,12 +60,13 @@ export default function EjerciciosPage() {
                   <h4 className="font-semibold mb-3 text-[#26a7df]">Solución:</h4>
                   <div className="space-y-2 text-sm">
                     <p>Para ambos casos trabajamos en el orden de las centésimas (10⁻²)</p>
-                    <p className="font-mono">Cota de error absoluto = (1/2) × 10⁻² = 0.005</p>
+                    <p className="font-mono">Cota de error absoluto ={'>'} Δ*(a) = (1/2) × 10⁻² = 0.005</p>
 
                     <div className="mt-4 space-y-2">
                       <p className="font-semibold">Cota del error relativo:</p>
-                      <p>Por defecto: 0.005/3.14 = 0.00159</p>
-                      <p>Por exceso: 0.005/3.15 = 0.00158</p>
+                      <p>Por defecto: ε*(a) = 0.005/3.14 = 0.00159</p>
+                      <p>Por exceso: ε*(a) = 0.005/3.15 = 0.00158</p>
+                      <div className="meme-contenedor"><img className="meme" src="https://blog.mtg.in/wp-content/uploads/2023/08/1.jpg" alt="" /></div>
                     </div>
                   </div>
                 </div>
@@ -80,7 +82,7 @@ export default function EjerciciosPage() {
           </CardHeader>
           <CardContent className="space-y-6 mt-4">
             <div className="bg-[#26a7df]/10 p-4 rounded-lg border border-[#26a7df]">
-              <p className="font-mono text-center text-lg">I(α) = a ± Cota del error absoluto</p>
+              <p className="font-mono text-center text-lg">I(α) = a ± Δ*(a)</p>
             </div>
 
             <Button
@@ -124,7 +126,7 @@ export default function EjerciciosPage() {
           <CardContent className="space-y-6 mt-4">
             <div className="bg-[#faec1d]/20 p-4 rounded-lg border border-[#faec1d]">
               <p className="mb-2">Para que su cota de error absoluto sea menor que 10⁻⁶</p>
-              <p className="font-mono text-center">Cota de error para n cifras significativas = 0.5 × 10⁻⁽ⁿ⁻¹⁾</p>
+              <p className="font-mono text-center">Cota de error para n cifras significativas = Δ*(a) = 0.5 × 10⁻⁽ⁿ⁻¹⁾</p>
             </div>
 
             <Button
