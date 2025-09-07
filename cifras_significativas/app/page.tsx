@@ -56,19 +56,19 @@ export default function SignificantFiguresPresentation() {
                     <li className="space-y-1">
                       <div>• Todos los dígitos excepto el cero son siempre significativos</div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 894621 contiene seis dígitos significativos
+                        Ejemplo: 789 contiene 3 dígitos significativos
                       </div>
                     </li>
                     <li className="space-y-1">
                       <div>• Cualquier cero entre dos dígitos distintos de cero es significativo</div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 10.007 contiene cinco dígitos significativos
+                        Ejemplo: 10.007 contiene 5 dígitos significativos
                       </div>
                     </li>
                     <li className="space-y-1">
-                      <div>• Los ceros a la izquierda de un dígito distinto de cero no son significativos</div>
+                      <div>• Los ceros a la izquierda del primer dígito distinto de cero no son significativos</div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 0,0012 contiene dos dígitos significativos
+                        Ejemplo: 0,0012 contiene 2 dígitos significativos
                       </div>
                     </li>
                     <li className="space-y-1">
@@ -77,25 +77,25 @@ export default function SignificantFiguresPresentation() {
                         cero después
                       </div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 80.00 contiene cuatro dígitos significativos
+                        Ejemplo: 80.00 contiene 4 dígitos significativos
                       </div>
                     </li>
                     <li className="space-y-1">
                       <div>
-                        • Los ceros a la derecha del último dígito distinto de cero después de la coma decimal son
+                        • Los ceros a la derecha del último dígito distinto de cero después del punto decimal son
                         significativos
                       </div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 0,00153100 contiene seis dígitos significativos
+                        Ejemplo: 0.005500 contiene 4 dígitos significativos
                       </div>
                     </li>
                     <li className="space-y-1">
                       <div>
                         • Los ceros a la derecha del último dígito distinto de cero son significativos cuando provienen
-                        de una medición
+                        de una medición (depende del contexto)
                       </div>
                       <div className="ml-4 text-[#26a7df] font-mono">
-                        Ejemplo: 3560 m contiene cuatro dígitos significativos
+                        Ejemplo: 3560 m contiene 4 dígitos significativos
                       </div>
                     </li>
                   </ul>
