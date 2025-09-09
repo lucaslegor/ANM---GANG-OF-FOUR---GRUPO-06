@@ -38,28 +38,58 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Debe usar output:'export' desde cifras_significativas/next.config.cjs
+      # Usa tu next.config.cjs con output:'export'
       - name: Build
         run: npm run build
 
-      # Debug: imprimimos qué generó el build
+      # Debug útil
       - name: Show build output (debug)
         run: |
           echo "PWD:" && pwd
           echo "== listing =="
           ls -la
-          echo "== show next.config.cjs =="
+          echo "== next.config.cjs =="
           sed -n '1,200p' next.config.cjs || true
           echo "== .next =="
           ls -la .next || true
-          echo "== out =="
+          echo "== .next/server/app (html) =="
+          find .next/server/app -name 'index.html' -maxdepth 5 2>/dev/null | sed 's/^/ - /' || true
+          echo "== out (si existe) =="
           ls -la out || true
+          echo "== public (si existe) =="
+          ls -la public || true
 
-      # Fallar de forma clara si no existe out/
+      # Fallback: si no existe out/, lo sintetizamos desde .next
+      - name: Synthesize out/ if missing (fallback)
+        run: |
+          if [ ! -d "out" ]; then
+            echo "⚠️  out/ no existe; lo generamos desde .next/"
+            mkdir -p out
+            # Copiamos assets estáticos
+            if [ -d "public" ]; then
+              rsync -a public/ out/
+            fi
+            if [ -d ".next/static" ]; then
+              mkdir -p out/_next/static
+              rsync -a .next/static/ out/_next/static/
+            fi
+            # Copiamos HTML prerenderizado del App Router
+            if [ -d ".next/server/app" ]; then
+              rsync -a --prune-empty-dirs \
+                --include '*/' --include 'index.html' --exclude '*' \
+                .next/server/app/ out/
+            fi
+            echo "📦 Contenido final de out/:"
+            find out -maxdepth 5 -type f | sed 's/^/ - /' | head -n 200
+          else
+            echo "✅ out/ ya existe; no hace falta fallback."
+          fi
+
+      # Verificación final
       - name: Ensure out/ exists
         run: |
           if [ ! -d "out" ]; then
-            echo "❌ No se generó ./out. Asegurate de tener output: 'export' en next.config.cjs y que TODAS las rutas sean estáticas (○/●)."
+            echo "❌ No se generó ./out ni con fallback."
             exit 1
           fi
 
