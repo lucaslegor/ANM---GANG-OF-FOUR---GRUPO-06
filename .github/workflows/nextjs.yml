@@ -1,4 +1,5 @@
 name: Deploy Next.js site to Pages
+
 on:
   push:
     branches: ["main"]
@@ -37,17 +38,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build (Next.js export)
-        run: npm run build  # genera ./out gracias a --output export
+      # Debe usar output:'export' desde cifras_significativas/next.config.cjs
+      - name: Build
+        run: npm run build
 
+      # Debug: imprimimos qué generó el build
       - name: Show build output (debug)
         run: |
-          pwd
+          echo "PWD:" && pwd
+          echo "== listing =="
           ls -la
-          echo "---- .next ----"
+          echo "== show next.config.cjs =="
+          sed -n '1,200p' next.config.cjs || true
+          echo "== .next =="
           ls -la .next || true
-          echo "---- out ----"
+          echo "== out =="
           ls -la out || true
+
+      # Fallar de forma clara si no existe out/
+      - name: Ensure out/ exists
+        run: |
+          if [ ! -d "out" ]; then
+            echo "❌ No se generó ./out. Asegurate de tener output: 'export' en next.config.cjs y que TODAS las rutas sean estáticas (○/●)."
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
