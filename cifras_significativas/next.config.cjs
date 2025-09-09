@@ -13,7 +13,6 @@ const nextConfig = {
 const isNetlify = !!process.env.NETLIFY  // Netlify setea esta env var
 /** @type {import('next').NextConfig} */
 module.exports = {
-  output: 'export',
   images: { unoptimized: true },
   // En Netlify NO uses basePath/assetPrefix, dejalos vacíos:
   basePath: '',
