@@ -1,5 +1,4 @@
 name: Deploy Next.js site to Pages
-
 on:
   push:
     branches: ["main"]
@@ -38,8 +37,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build  # output: 'export' crea ./out
+      - name: Build (Next.js export)
+        run: npm run build  # genera ./out gracias a --output export
 
       - name: Show build output (debug)
         run: |
