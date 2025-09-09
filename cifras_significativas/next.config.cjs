@@ -10,14 +10,14 @@ const nextConfig = {
     unoptimized: true,
   },
 }
-const isProd = process.env.NODE_ENV === 'production'
-const repoName = 'ANM---GANG-OF-FOUR---GRUPO-06'
-
+const isNetlify = !!process.env.NETLIFY  // Netlify setea esta env var
+/** @type {import('next').NextConfig} */
 module.exports = {
   output: 'export',
   images: { unoptimized: true },
-  basePath: isProd ? `/${repoName}` : '',
-  assetPrefix: isProd ? `/${repoName}/` : '',
+  // En Netlify NO uses basePath/assetPrefix, dejalos vacíos:
+  basePath: '',
+  assetPrefix: '',
   trailingSlash: true,
 }
 
