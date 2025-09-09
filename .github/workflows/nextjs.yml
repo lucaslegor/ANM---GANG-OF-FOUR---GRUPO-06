@@ -39,17 +39,15 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build  # output: 'export' crea ./out
 
-      # 👇 Asegura que exista ./out aunque el build no la cree
-      - name: Export static HTML
-        run: npm run export
-
-      # 👇 Debug rápido si vuelve a fallar
-      - name: Show build output
+      - name: Show build output (debug)
         run: |
           pwd
           ls -la
+          echo "---- .next ----"
+          ls -la .next || true
+          echo "---- out ----"
           ls -la out || true
 
       - name: Upload artifact
