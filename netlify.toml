@@ -1,5 +1,5 @@
 [build]
-  base    = "cifras_significativas"
+  base    = "MetodoCrout
   command = "npm ci && npm run build"
   publish = ".next"
 
