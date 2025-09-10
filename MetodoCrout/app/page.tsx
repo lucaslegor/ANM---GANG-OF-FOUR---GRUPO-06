@@ -245,9 +245,11 @@ export default function CroutMethodHome() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-[#ea1f27]/10 p-4 rounded-lg border border-[#ea1f27]">
-                  <h4 className="font-semibold text-[#ea1f27] mb-3">Paso 1: Sustitución Directa Descendente</h4>
+                  <h4 className="font-semibold text-white bg-[#ea1f27] px-3 py-2 rounded mb-3">
+                    Paso 1: Sustitución Directa Descendente
+                  </h4>
                   <div className="font-mono text-center text-lg mb-2">L · y = b</div>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm text-gray-800 mb-3">
                     Resolvemos para encontrar el vector y usando sustitución hacia adelante.
                   </p>
                   <div className="bg-white p-2 rounded text-xs font-mono">
@@ -262,15 +264,29 @@ export default function CroutMethodHome() {
                 </div>
 
                 <div className="bg-[#26a7df]/10 p-4 rounded-lg border border-[#26a7df]">
-                  <h4 className="font-semibold text-[#26a7df] mb-3">Paso 2: Sustitución Directa Ascendente</h4>
+                  <h4 className="font-semibold text-white bg-[#26a7df] px-3 py-2 rounded mb-3">
+                    Paso 2: Sustitución Directa Ascendente
+                  </h4>
                   <div className="font-mono text-center text-lg mb-2">U · x = y</div>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm text-gray-800 mb-3">
                     Resolvemos para encontrar el vector solución x usando sustitución hacia atrás.
                   </p>
                   <div className="bg-white p-2 rounded text-xs font-mono">
-                    x{n} = y{n}
-                    <br />x{n - 1} = y{n - 1} - u{(n - 1, n)}×y{n}
-                    <br />x{n - 2} = y{n - 2} - u{(n - 2, n - 1)}×y{n - 1} - u{(n - 2, n)}×y{n}
+                    x<sub>{n}</sub> = y<sub>{n}</sub>
+                    <br />x<sub>{n - 1}</sub> = y<sub>{n - 1}</sub> - u
+                    <sub>
+                      ({n - 1}, {n})
+                    </sub>
+                    ×y<sub>{n}</sub>
+                    <br />x<sub>{n - 2}</sub> = y<sub>{n - 2}</sub> - u
+                    <sub>
+                      ({n - 2}, {n - 1})
+                    </sub>
+                    ×y<sub>{n - 1}</sub> - u
+                    <sub>
+                      ({n - 2}, {n})
+                    </sub>
+                    ×y<sub>{n}</sub>
                     <br />
                     ...
                   </div>

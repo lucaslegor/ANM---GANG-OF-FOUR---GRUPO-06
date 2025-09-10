@@ -455,7 +455,7 @@ export default function CalculadoraPage() {
                         {results.minors.map((minor: number, index: number) => (
                           <div key={index} className="text-sm">
                             <span className="font-mono">
-                              Δ_{index + 1} = {minor.toFixed(6)}
+                              Δ<sub>{index + 1}</sub> = {minor.toFixed(6)}
                             </span>
                           </div>
                         ))}
@@ -518,7 +518,7 @@ export default function CalculadoraPage() {
                           <div className="font-mono text-sm">
                             {Array.from({ length: n }, (_, i) => (
                               <div key={i}>
-                                y_{i + 1} = {results.y[i].toFixed(6)}
+                                y<sub>{i + 1}</sub> = {results.y[i].toFixed(6)}
                               </div>
                             ))}
                           </div>
@@ -544,7 +544,7 @@ export default function CalculadoraPage() {
                           <div className="font-mono text-sm">
                             {Array.from({ length: n }, (_, i) => (
                               <div key={i} className="font-bold">
-                                x_{i + 1} = {results.x[i].toFixed(6)}
+                                x<sub>{i + 1}</sub> = {results.x[i].toFixed(6)}
                               </div>
                             ))}
                           </div>
