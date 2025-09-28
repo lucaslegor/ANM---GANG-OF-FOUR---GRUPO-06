@@ -6,10 +6,10 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-2">Integrantes del Equipo</h3>
             <ul className="space-y-1 text-sm">
-              <li>[Nombre del Integrante 1]</li>
-              <li>[Nombre del Integrante 2]</li>
-              <li>[Nombre del Integrante 3]</li>
-              <li>[Nombre del Integrante 4]</li>
+              <li>Devida Facundo</li>
+              <li>Legorburu Lucas</li>
+              <li>Pascucci Agostina</li>
+              <li>Smith Justina</li>
             </ul>
           </div>
 
@@ -17,20 +17,20 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-2">Información Académica</h3>
             <div className="text-sm space-y-1">
               <p>
-                <strong>Materia:</strong> [Nombre de la Materia]
+                <strong>Materia:</strong> Analisis Numérico
               </p>
               <p>
-                <strong>Universidad:</strong> [Nombre de la Universidad]
+                <strong>Universidad:</strong> Universidad Tegnologica Nacional
               </p>
               <p>
-                <strong>Año:</strong> 2024
+                <strong>Año:</strong> 2025
               </p>
             </div>
           </div>
 
           <div>
             <h3 className="font-bold text-lg mb-2">Gang Of Four</h3>
-            <p className="text-sm">Presentación educativa sobre cifras significativas y análisis de errores.</p>
+            <p className="text-sm">Presentación educativa sobre el Método de Crout (LU) para sistemas de ecuaciones lineales.</p>
           </div>
         </div>
 
