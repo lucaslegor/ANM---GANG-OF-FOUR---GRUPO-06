@@ -246,7 +246,7 @@ export default function CroutMethodHome() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-[#ea1f27]/10 p-4 rounded-lg border border-[#ea1f27]">
                   <h4 className="font-semibold text-white bg-[#ea1f27] px-3 py-2 rounded mb-3">
-                    Paso 1: Sustitución Directa Descendente
+                    Paso 1: Solución Directa Descendente
                   </h4>
                   <div className="font-mono text-center text-lg mb-2">L · y = b</div>
                   <p className="text-sm text-gray-800 mb-3">
@@ -265,7 +265,7 @@ export default function CroutMethodHome() {
 
                 <div className="bg-[#26a7df]/10 p-4 rounded-lg border border-[#26a7df]">
                   <h4 className="font-semibold text-white bg-[#26a7df] px-3 py-2 rounded mb-3">
-                    Paso 2: Sustitución Directa Ascendente
+                    Paso 2: Solución Directa Ascendente
                   </h4>
                   <div className="font-mono text-center text-lg mb-2">U · x = y</div>
                   <p className="text-sm text-gray-800 mb-3">

@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-red-400 mt-6 pt-4 text-center text-sm">
-          <p>&copy; 2024 Gang Of Four. Todos los derechos reservados.</p>
+          <p>&copy; 2025 Gang Of Four. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
