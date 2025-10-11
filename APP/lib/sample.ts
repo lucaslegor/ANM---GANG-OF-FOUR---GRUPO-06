@@ -1,0 +1,17 @@
+export const sampleData = [
+  { velocidad: 3.5, potencia: 15.2 },
+  { velocidad: 4.2, potencia: 28.5 },
+  { velocidad: 5.1, potencia: 52.3 },
+  { velocidad: 5.8, potencia: 78.9 },
+  { velocidad: 6.5, potencia: 112.4 },
+  { velocidad: 7.2, potencia: 155.8 },
+  { velocidad: 7.9, potencia: 208.3 },
+  { velocidad: 8.6, potencia: 270.1 },
+  { velocidad: 9.3, potencia: 341.5 },
+  { velocidad: 10.0, potencia: 422.8 },
+  { velocidad: 10.7, potencia: 514.2 },
+  { velocidad: 11.4, potencia: 615.9 },
+  { velocidad: 12.1, potencia: 728.1 },
+  { velocidad: 12.8, potencia: 851.0 },
+  { velocidad: 13.5, potencia: 984.8 },
+]

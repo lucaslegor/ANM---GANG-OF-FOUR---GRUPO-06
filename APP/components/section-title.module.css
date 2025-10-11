@@ -1,0 +1,29 @@
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 3rem 0 2rem 0;
+  color: oklch(0.6 0.15 220);
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4rem;
+  height: 3px;
+  background: oklch(0.6 0.15 220);
+  border-radius: 2px;
+}
+
+.dark .title {
+  color: oklch(0.7 0.15 220);
+}
+
+.dark .title::after {
+  background: oklch(0.7 0.15 220);
+}
