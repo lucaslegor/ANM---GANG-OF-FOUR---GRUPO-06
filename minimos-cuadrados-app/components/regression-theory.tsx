@@ -43,9 +43,14 @@ export function RegressionTheory({ type }: RegressionTheoryProps) {
       steps: [
         "Se busca una función de la forma: y = ax^b",
         "Se linealiza aplicando logaritmo: ln(y) = ln(a) + b·ln(x)",
-        "Se define Y = ln(y), X = ln(x), A = ln(a)",
+        "Se define Y = ln(y), X = ln(x), A = ln(a), B = b",
         "Se aplica regresión lineal a los datos transformados",
-        "Se recuperan los parámetros originales: a = e^A",
+        "Se busca una función de la forma: Y = A + Bx",
+        "Se calculan las sumas necesarias: ΣX, ΣY, ΣXY, ΣX², y es necesario conocer n",
+        "Se resuelven las ecuaciones normales para encontrar A y B",
+        "B = (nΣxy - ΣxΣy) / (nΣx² - (Σx)²)",
+        "A = (Σy - BΣx) / n",
+        "Se recuperan los parámetros originales: a = e^A, b=B",
       ],
     },
   }
