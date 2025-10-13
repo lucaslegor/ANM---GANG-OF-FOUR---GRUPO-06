@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Suspense } from "react"
+import 'katex/dist/katex.min.css'
 
 export const metadata: Metadata = {
   title: "Análisis Numérico - Mínimos Cuadrados",

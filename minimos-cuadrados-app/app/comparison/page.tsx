@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { AlertCircle, Trophy, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { RegressionResult } from "@/lib/types"
+import { InlineMath, BlockMath } from 'react-katex';
 
 interface ModelComparison extends RegressionResult {
   rank: number
@@ -172,7 +173,10 @@ export default function ComparisonPage() {
 
           <div className="bg-muted p-4 rounded-lg">
             <p className="text-center font-mono">
-              {`$$R_{adj}^2 = 1 - \\frac{((1 - ${bestModel.r2})(n - 1))}{n - ${bestModel.equation.split("+").length} - 1}$$`}
+              <BlockMath>
+                {`R_{adj}^2 = 1 - \\frac{((1 - ${bestModel.r2})(n - 1))}{n - ${bestModel.equation.split("+").length} - 1}`}
+              </BlockMath>
+              
             </p>
           </div>
 
