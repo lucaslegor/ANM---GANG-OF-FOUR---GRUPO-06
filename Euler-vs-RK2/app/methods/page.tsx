@@ -43,7 +43,7 @@ export default function MethodsPage() {
 
             <div className="bg-slate-800/60 p-4 rounded-lg border border-red-500/30">
               <h4 className="font-semibold mb-2 text-red-300">Fórmula:</h4>
-              <div className="text-center py-2">$$y_{"{n+1}"} = y_n + h \cdot f(x_n, y_n)$$</div>
+              <div className="text-center py-2 text-gray-300">$$y_{"{n+1}"} = y_n + h \cdot f(x_n, y_n)$$</div>
             </div>
 
             <div>
@@ -83,7 +83,7 @@ export default function MethodsPage() {
 
             <div className="bg-slate-800/60 p-4 rounded-lg border border-blue-500/30">
               <h4 className="font-semibold mb-2 text-blue-300">Fórmulas:</h4>
-              <div className="text-center py-2 space-y-2">
+              <div className="text-center py-2 space-y-2 text-gray-300">
                 <div>$$k_1 = h \cdot f(x_n, y_n)$$</div>
                 <div>
                   $$y_{"{n+1}"} = y_n + h \cdot f\left(x_n + \frac{"{h}"}

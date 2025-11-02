@@ -44,7 +44,7 @@ export default function ComparisonPage() {
           <div className="space-y-4">
             <div className="bg-slate-800/60 p-4 rounded-xl border border-red-500/30">
               <p className="font-semibold mb-2 text-red-300">Fórmula:</p>
-              <div className="text-center">$$y_1 = y_0 + h \cdot f(x_0, y_0)$$</div>
+              <div className="text-center"><p className="mt-4 text-gray-300">$$y_1 = y_0 + h \cdot f(x_0, y_0)$$</p></div>
             </div>
 
             <div>
@@ -117,7 +117,7 @@ export default function ComparisonPage() {
         </p>
         <div className="text-center mt-6">
           <p className="text-3xl font-bold text-green-400">Error RK2 / Error Euler = 0.0027 / 0.0337 ≈ 0.08</p>
-          <p className="text-gray-300 mt-2">RK2 es aproximadamente 12 veces más preciso</p>
+          <p className="text-gray-300 mt-2">El error de RK2 es un 8% del de Euler. RK2 es aproximadamente 12 veces más preciso</p>
         </div>
       </div>
 
