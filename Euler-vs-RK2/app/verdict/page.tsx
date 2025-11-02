@@ -19,6 +19,21 @@ export default function VerdictPage() {
         </p>
       </div>
 
+      {/* Video Section - contorno rojo neón estilo pelea */}
+      <div className="mb-12 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <div className="p-4 rounded-2xl border-2 border-red-500/60 bg-gradient-to-br from-slate-900/60 to-slate-900/30 backdrop-blur-sm transition-all duration-300 hover:border-red-500 hover:shadow-[0_0_35px] hover:shadow-red-500/40 hover:ring-4 hover:ring-red-600/50 hover:ring-offset-2 hover:ring-offset-slate-900">
+          <div className="rounded-xl overflow-hidden">
+            <video
+              className="w-full h-auto block"
+              controls
+              src="/euler.mp4?v=1"
+            >
+              Tu navegador no soporta video HTML5.
+            </video>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-12 mb-16">
         {/* Precision Section */}
         <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-2xl border border-red-500/30 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

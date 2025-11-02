@@ -111,6 +111,8 @@ export default function MethodsPage() {
         </div>
       </div>
 
+      {/* CTA a calculadora removido: la calculadora vive en la navbar */}
+
       <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
         <Link href="/comparison">
           <Button

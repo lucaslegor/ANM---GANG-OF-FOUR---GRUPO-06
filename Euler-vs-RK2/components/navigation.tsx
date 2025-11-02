@@ -9,8 +9,9 @@ const navItems = [
   { href: "/", label: "Inicio" },
   { href: "/methods", label: "Los Métodos" },
   { href: "/comparison", label: "Comparativa" },
+   { href: "/calculator", label: "Calculadora" },
   { href: "/verdict", label: "Veredicto Final" },
-  { href: "/source", label: "Fuentes" },
+  { href: "/source", label: "Fuentes" }
 ]
 
 export function Navigation() {
@@ -54,6 +55,9 @@ export function Navigation() {
                 )}
               </Link>
             ))}
+
+            {/* Direct link to Calculator */}
+           
           </div>
         </div>
       </div>
