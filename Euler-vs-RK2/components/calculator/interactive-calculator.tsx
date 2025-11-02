@@ -34,7 +34,7 @@ export function InteractiveCalculator() {
     const _xf = parseFloat(xf)
     const _h = parseFloat(h)
     if (!isFinite(_x0) || !isFinite(_xf) || !isFinite(_h) || _h === 0) return 0
-    const n = Math.max(0, Math.round((_xf - _x0) / _h))
+    const n = Math.max(1, Math.ceil(Math.abs((_xf - _x0) / Math.abs(_h))))
     return n
   }, [x0, xf, h])
 
@@ -76,7 +76,10 @@ export function InteractiveCalculator() {
       return
     }
 
-    const nSteps = Math.max(0, Math.round((_xf - _x0) / _h))
+    const absH = Math.abs(_h)
+    // Asegura avanzar hacia xf incluso si h tiene signo opuesto
+    const stepH = (_xf - _x0) >= 0 ? absH : -absH
+    const nSteps = Math.max(1, Math.ceil(Math.abs((_xf - _x0) / absH)))
     const res: Row[] = []
 
     let x = _x0
@@ -87,20 +90,28 @@ export function InteractiveCalculator() {
     for (let i = 1; i <= nSteps; i++) {
       // Euler
       const kE = f(x, yE)
-      const yE1 = yE + _h * kE
+      const yE1 = yE + stepH * kE
 
       // RK2 (punto medio)
       const k1 = f(x, yR)
-      const k2 = f(x + _h / 2, yR + (_h * k1) / 2)
-      const yR1 = yR + _h * k2
+      const k2 = f(x + stepH / 2, yR + (stepH * k1) / 2)
+      const yR1 = yR + stepH * k2
 
-      x = _x0 + i * _h
+      x = _x0 + i * stepH
       yE = yE1
       yR = yR1
       res.push({ step: i, x, yEuler: yE, yRK2: yR })
     }
 
-    setRows(res)
+    // Si el último x sobrepasó xf por redondeo, ajusta el valor de x del último registro
+    const last = res[res.length - 1]
+    if (Math.sign(_xf - _x0) !== 0 && Math.sign(last.x - _xf) === Math.sign(stepH)) {
+      last.x = _xf
+    }
+
+    // Filtra valores no finitos para que el gráfico no quede vacío
+    const clean = res.filter(r => isFinite(r.x) && isFinite(r.yEuler) && isFinite(r.yRK2))
+    setRows(clean)
   }
 
   return (
