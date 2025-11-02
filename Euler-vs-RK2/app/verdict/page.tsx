@@ -107,6 +107,9 @@ export default function VerdictPage() {
       {/* Final Verdict Table */}
       <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-2xl border-2 border-cyan-500/40 mb-12 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
         <h2 className="text-4xl font-bold mb-8 text-center text-cyan-300">El Veredicto Final</h2>
+        <p className="hidden text-center text-sm text-gray-300 mb-6">
+          Leyenda: <span className="text-yellow-300 font-semibold">Copa</span> → <span className="text-blue-300 font-semibold">Runge‑Kutta 2</span> | <span className="text-red-300 font-semibold">Rayo</span> → <span className="text-red-300 font-semibold">Euler</span>
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -122,25 +125,25 @@ export default function VerdictPage() {
                 <td className="p-4 font-semibold text-cyan-200">Estrategia</td>
                 <td className="p-4 text-sm text-gray-300">Simple y directa. Usa la pendiente inicial.</td>
                 <td className="p-4 text-sm text-gray-300">Sofisticada. Usa una pendiente promedio en el punto medio.</td>
-                <td className="p-4 text-center text-2xl">🏆</td>
+                <td className="p-4 text-center text-2xl"><span className="text-blue-300 font-semibold">RK2</span> <span aria-hidden>🏆</span></td>
               </tr>
               <tr className="border-b border-slate-700 bg-slate-800/40 hover:bg-slate-700/40 transition-colors">
                 <td className="p-4 font-semibold text-cyan-200">Precisión (Orden)</td>
                 <td className="p-4 text-sm text-gray-300">Baja. Primer orden, <InlineMath math={"O(h)"} /></td>
                 <td className="p-4 text-sm text-gray-300">Alta. Segundo orden, <InlineMath math={"O(h^2)"} /></td>
-                <td className="p-4 text-center text-2xl">🏆</td>
+                <td className="p-4 text-center text-2xl"><span className="text-blue-300 font-semibold">RK2 </span> <span aria-hidden>🏆</span></td>
               </tr>
               <tr className="border-b border-slate-700 bg-slate-800/40 hover:bg-slate-700/40 transition-colors">
                 <td className="p-4 font-semibold text-cyan-200">Costo por Paso</td>
                 <td className="p-4 text-sm text-gray-300">Bajo (1 evaluación de la función)</td>
                 <td className="p-4 text-sm text-gray-300">Medio (2 evaluaciones de la función)</td>
-                <td className="p-4 text-center text-2xl">⚡</td>
+                <td className="p-4 text-center text-2xl"><span className="text-red-300 font-semibold">Euler</span> <span aria-hidden>⚡</span></td>
               </tr>
               <tr className="border-b border-slate-700 bg-slate-800/40 hover:bg-slate-700/40 transition-colors">
                 <td className="p-4 font-semibold text-cyan-200">Estabilidad</td>
                 <td className="p-4 text-sm text-gray-300">Baja. Puede divergir fácilmente.</td>
                 <td className="p-4 text-sm text-gray-300">Alta. Mucho más robusto.</td>
-                <td className="p-4 text-center text-2xl">🏆</td>
+                <td className="p-4 text-center text-2xl"><span className="text-blue-300 font-semibold">RK2</span> <span aria-hidden>🏆</span></td>
               </tr>
             </tbody>
           </table>
