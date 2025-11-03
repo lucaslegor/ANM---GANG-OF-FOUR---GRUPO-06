@@ -1,5 +1,5 @@
 [build]
-  base    = "minimos-cuadrados-app"
+  base    = "Euler-vs-RK2"
   command = "npm ci && npm run build"
   publish = ".next"
 
