@@ -72,14 +72,32 @@ function ARMarkerContent() {
 
   // Inicializar AR cuando las librerías estén cargadas
   useEffect(() => {
-    if (!librariesLoaded || !arSupported || cameraError) return
+    if (!librariesLoaded || !arSupported || cameraError || arInitialized) return
     if (typeof window === 'undefined') return
-    if (!window.THREE || !sceneRef.current) return
+    if (!window.THREE || !window.THREE.Scene) return
+    if (!videoRef.current || !canvasRef.current) {
+      console.log('⏳ Esperando refs de video y canvas...')
+      return
+    }
+
+    let initializationTimeout: NodeJS.Timeout
+    let cleanup: (() => void) | null = null
 
     const initAR = async () => {
       try {
-        // Solicitar acceso a la cámara
-        const stream = await navigator.mediaDevices.getUserMedia({
+        console.log('🚀 Iniciando AR...')
+        
+        // Timeout para la inicialización completa
+        initializationTimeout = setTimeout(() => {
+          if (!arInitialized) {
+            console.error('⏱️ Timeout inicializando AR')
+            setCameraError('La inicialización está tardando demasiado. Por favor, recarga la página.')
+          }
+        }, 20000) // 20 segundos máximo
+
+        // Solicitar acceso a la cámara con timeout
+        console.log('📷 Solicitando acceso a la cámara...')
+        const cameraPromise = navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'environment',
             width: { ideal: 1280 },
@@ -87,13 +105,26 @@ function ARMarkerContent() {
           },
         })
 
-        if (!videoRef.current || !canvasRef.current) return
+        // Timeout para getUserMedia (10 segundos)
+        const cameraTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+        })
+
+        const stream = await Promise.race([cameraPromise, cameraTimeout]) as MediaStream
+        console.log('✅ Cámara accedida')
+
+        if (!videoRef.current || !canvasRef.current) {
+          stream.getTracks().forEach(track => track.stop())
+          throw new Error('Refs no disponibles')
+        }
 
         // Configurar video
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        await videoRef.current.play()
+        console.log('✅ Video iniciado')
 
         // Configurar canvas 3D
+        console.log('🎨 Configurando escena 3D...')
         const scene = new window.THREE.Scene()
         const camera = new window.THREE.PerspectiveCamera(
           75,
@@ -109,7 +140,8 @@ function ARMarkerContent() {
           antialias: true,
         })
         renderer.setSize(window.innerWidth, window.innerHeight)
-        renderer.setPixelRatio(window.devicePixelRatio)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        console.log('✅ Renderer configurado')
 
         // Iluminación
         const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.6)
@@ -120,6 +152,7 @@ function ARMarkerContent() {
 
         // Crear gráfico 3D
         if (chartData.length > 0) {
+          console.log('📊 Creando gráfico 3D...')
           const points: any[] = []
           const minTime = Math.min(...chartData.map(d => d.time))
           const maxTime = Math.max(...chartData.map(d => d.time))
@@ -162,6 +195,7 @@ function ARMarkerContent() {
             renderer.render(scene, camera)
           }
           animate()
+          console.log('✅ Gráfico 3D creado')
         }
 
         // Manejar resize
@@ -172,26 +206,46 @@ function ARMarkerContent() {
         }
         window.addEventListener('resize', handleResize)
 
-        setArInitialized(true)
-
-        // Cleanup
-        return () => {
+        cleanup = () => {
           stream.getTracks().forEach(track => track.stop())
           window.removeEventListener('resize', handleResize)
         }
+
+        clearTimeout(initializationTimeout)
+        setArInitialized(true)
+        console.log('✅ AR inicializado correctamente')
       } catch (err: any) {
-        console.error('Error inicializando AR:', err)
-        const errorMsg = err.name === 'NotAllowedError'
-          ? 'Acceso a la cámara denegado. Por favor, permite el acceso en la configuración de tu navegador.'
-          : err.name === 'NotFoundError'
-          ? 'No se encontró ninguna cámara. Por favor, conecta una cámara y recarga la página.'
-          : 'Error al acceder a la cámara. Por favor, verifica los permisos.'
+        console.error('❌ Error inicializando AR:', err)
+        clearTimeout(initializationTimeout)
+        
+        let errorMsg = 'Error al inicializar la realidad aumentada. Por favor, recarga la página.'
+        
+        if (err.name === 'NotAllowedError' || err.message === 'Permission denied') {
+          errorMsg = 'Acceso a la cámara denegado. Por favor, permite el acceso en la configuración de tu navegador.'
+        } else if (err.name === 'NotFoundError' || err.message === 'No camera found') {
+          errorMsg = 'No se encontró ninguna cámara. Por favor, conecta una cámara y recarga la página.'
+        } else if (err.message === 'TIMEOUT') {
+          errorMsg = 'La solicitud de cámara está tardando demasiado. Por favor, verifica los permisos y recarga la página.'
+        } else if (err.message) {
+          errorMsg = `Error: ${err.message}`
+        }
+        
         setCameraError(errorMsg)
+        if (cleanup) cleanup()
       }
     }
 
-    initAR()
-  }, [librariesLoaded, arSupported, chartData, currentColor])
+    // Pequeño delay para asegurar que los refs estén listos
+    const timer = setTimeout(() => {
+      initAR()
+    }, 100)
+
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(initializationTimeout)
+      if (cleanup) cleanup()
+    }
+  }, [librariesLoaded, arSupported, chartData, currentColor, arInitialized])
 
   // Verificar carga de librerías con polling y timeout
   useEffect(() => {
