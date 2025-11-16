@@ -20,6 +20,7 @@ function ARMarkerContent() {
   const [arSupported, setArSupported] = useState(true)
   const [librariesLoaded, setLibrariesLoaded] = useState(false)
   const [librariesError, setLibrariesError] = useState(false)
+  const [requestingCamera, setRequestingCamera] = useState(false)
 
   const clusterId = searchParams.get('cluster') || '25-rich'
   const projectionTime = searchParams.get('projection') || '12'
@@ -72,13 +73,26 @@ function ARMarkerContent() {
 
   // Inicializar AR cuando las librerías estén cargadas
   useEffect(() => {
-    if (!librariesLoaded || !arSupported || cameraError || arInitialized) return
+    if (!librariesLoaded || !arSupported || cameraError || arInitialized || requestingCamera) return
     if (typeof window === 'undefined') return
     if (!window.THREE || !window.THREE.Scene) return
-    if (!videoRef.current || !canvasRef.current) {
-      console.log('⏳ Esperando refs de video y canvas...')
-      return
-    }
+    
+    // Esperar a que los refs estén disponibles con retry
+    const checkRefs = setInterval(() => {
+      if (videoRef.current && canvasRef.current) {
+        clearInterval(checkRefs)
+        initAR()
+      }
+    }, 100)
+
+    // Timeout para esperar refs (5 segundos)
+    setTimeout(() => {
+      clearInterval(checkRefs)
+      if (!videoRef.current || !canvasRef.current) {
+        console.error('⏱️ Timeout esperando refs')
+        setCameraError('Error al inicializar los componentes. Por favor, recarga la página.')
+      }
+    }, 5000)
 
     let initializationTimeout: NodeJS.Timeout
     let cleanup: (() => void) | null = null
@@ -86,14 +100,16 @@ function ARMarkerContent() {
     const initAR = async () => {
       try {
         console.log('🚀 Iniciando AR...')
+        setRequestingCamera(true)
         
         // Timeout para la inicialización completa
         initializationTimeout = setTimeout(() => {
           if (!arInitialized) {
             console.error('⏱️ Timeout inicializando AR')
+            setRequestingCamera(false)
             setCameraError('La inicialización está tardando demasiado. Por favor, recarga la página.')
           }
-        }, 20000) // 20 segundos máximo
+        }, 25000) // 25 segundos máximo
 
         // Solicitar acceso a la cámara con timeout
         console.log('📷 Solicitando acceso a la cámara...')
@@ -105,13 +121,14 @@ function ARMarkerContent() {
           },
         })
 
-        // Timeout para getUserMedia (10 segundos)
+        // Timeout para getUserMedia (15 segundos - más tiempo para móviles)
         const cameraTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+          setTimeout(() => reject(new Error('TIMEOUT')), 15000)
         })
 
         const stream = await Promise.race([cameraPromise, cameraTimeout]) as MediaStream
         console.log('✅ Cámara accedida')
+        setRequestingCamera(false)
 
         if (!videoRef.current || !canvasRef.current) {
           stream.getTracks().forEach(track => track.stop())
@@ -213,19 +230,21 @@ function ARMarkerContent() {
 
         clearTimeout(initializationTimeout)
         setArInitialized(true)
+        setRequestingCamera(false)
         console.log('✅ AR inicializado correctamente')
       } catch (err: any) {
         console.error('❌ Error inicializando AR:', err)
         clearTimeout(initializationTimeout)
+        setRequestingCamera(false)
         
         let errorMsg = 'Error al inicializar la realidad aumentada. Por favor, recarga la página.'
         
         if (err.name === 'NotAllowedError' || err.message === 'Permission denied') {
-          errorMsg = 'Acceso a la cámara denegado. Por favor, permite el acceso en la configuración de tu navegador.'
+          errorMsg = 'Acceso a la cámara denegado. Por favor, permite el acceso en la configuración de tu navegador y recarga la página.'
         } else if (err.name === 'NotFoundError' || err.message === 'No camera found') {
           errorMsg = 'No se encontró ninguna cámara. Por favor, conecta una cámara y recarga la página.'
         } else if (err.message === 'TIMEOUT') {
-          errorMsg = 'La solicitud de cámara está tardando demasiado. Por favor, verifica los permisos y recarga la página.'
+          errorMsg = 'La solicitud de cámara está tardando demasiado. Por favor, verifica los permisos en la configuración de tu navegador y recarga la página.'
         } else if (err.message) {
           errorMsg = `Error: ${err.message}`
         }
@@ -235,17 +254,11 @@ function ARMarkerContent() {
       }
     }
 
-    // Pequeño delay para asegurar que los refs estén listos
-    const timer = setTimeout(() => {
-      initAR()
-    }, 100)
-
     return () => {
-      clearTimeout(timer)
-      clearTimeout(initializationTimeout)
       if (cleanup) cleanup()
+      clearTimeout(initializationTimeout)
     }
-  }, [librariesLoaded, arSupported, chartData, currentColor, arInitialized])
+  }, [librariesLoaded, arSupported, chartData, currentColor, cameraError, arInitialized, requestingCamera])
 
   // Verificar carga de librerías con polling y timeout
   useEffect(() => {
@@ -447,7 +460,11 @@ function ARMarkerContent() {
                 style={{ color: currentColor }}
               />
               <p style={{ color: 'oklch(0.7 0.05 200)' }}>
-                {!librariesLoaded ? 'Cargando librerías 3D...' : 'Inicializando Realidad Aumentada...'}
+                {!librariesLoaded 
+                  ? 'Cargando librerías 3D...' 
+                  : requestingCamera 
+                    ? 'Solicitando acceso a la cámara...' 
+                    : 'Inicializando Realidad Aumentada...'}
               </p>
               {!librariesLoaded && (
                 <>
@@ -459,9 +476,19 @@ function ARMarkerContent() {
                   </p>
                 </>
               )}
-              {librariesLoaded && (
+              {librariesLoaded && requestingCamera && (
+                <>
+                  <p className="text-xs" style={{ color: 'oklch(0.6 0.05 200)' }}>
+                    Por favor, permite el acceso a la cámara cuando se solicite
+                  </p>
+                  <p className="text-xs mt-2" style={{ color: 'oklch(0.5 0.05 200)' }}>
+                    Busca el diálogo de permisos en tu navegador
+                  </p>
+                </>
+              )}
+              {librariesLoaded && !requestingCamera && !arInitialized && (
                 <p className="text-xs" style={{ color: 'oklch(0.6 0.05 200)' }}>
-                  Por favor, permite el acceso a la cámara cuando se solicite
+                  Configurando escena 3D...
                 </p>
               )}
             </div>
