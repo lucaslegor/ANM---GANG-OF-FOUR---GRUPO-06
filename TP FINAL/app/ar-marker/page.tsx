@@ -193,34 +193,66 @@ function ARMarkerContent() {
     initAR()
   }, [librariesLoaded, arSupported, chartData, currentColor])
 
+  // Verificar carga de librerías con polling y timeout
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (librariesLoaded || librariesError) return
+
+    let attempts = 0
+    const maxAttempts = 100 // 10 segundos máximo
+    const timeout = setTimeout(() => {
+      if (!librariesLoaded) {
+        console.error('⏱️ Timeout cargando Three.js')
+        setLibrariesError(true)
+        setCameraError('Error al cargar las librerías 3D. Por favor, verifica tu conexión a internet y recarga la página.')
+      }
+    }, 15000) // 15 segundos de timeout
+
+    const checkInterval = setInterval(() => {
+      attempts++
+      if (typeof window !== 'undefined' && window.THREE && window.THREE.Scene) {
+        console.log('✅ Three.js cargado correctamente')
+        clearInterval(checkInterval)
+        clearTimeout(timeout)
+        setLibrariesLoaded(true)
+      } else if (attempts >= maxAttempts) {
+        console.error('❌ Three.js no se cargó después de múltiples intentos')
+        clearInterval(checkInterval)
+        clearTimeout(timeout)
+        setLibrariesError(true)
+        setCameraError('Error al cargar las librerías 3D. Por favor, verifica tu conexión a internet y recarga la página.')
+      }
+    }, 100)
+
+    return () => {
+      clearInterval(checkInterval)
+      clearTimeout(timeout)
+    }
+  }, [librariesLoaded, librariesError])
+
   // Handlers para carga de librerías
   const handleThreeLoad = () => {
-    if (typeof window !== 'undefined' && window.THREE) {
-      console.log('✅ Three.js cargado')
-      checkLibrariesReady()
-    }
+    console.log('📦 Script Three.js cargado, verificando disponibilidad...')
+    // El polling se encargará de verificar
   }
 
   const handleThreeError = () => {
-    console.error('❌ Error cargando Three.js')
+    console.error('❌ Error cargando Three.js desde CDN')
     setLibrariesError(true)
     setCameraError('Error al cargar las librerías 3D. Por favor, verifica tu conexión a internet y recarga la página.')
   }
 
-  const checkLibrariesReady = () => {
-    if (typeof window !== 'undefined' && window.THREE) {
-      setLibrariesLoaded(true)
-    }
-  }
-
   return (
     <>
-      {/* Cargar Three.js desde CDN */}
+      {/* Cargar Three.js desde CDN con múltiples fallbacks */}
       <Script
         src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
         onLoad={handleThreeLoad}
         onError={handleThreeError}
+        onReady={() => {
+          console.log('✅ Script Three.js listo')
+        }}
       />
 
       <div className="fixed inset-0 bg-black overflow-hidden">
@@ -364,9 +396,14 @@ function ARMarkerContent() {
                 {!librariesLoaded ? 'Cargando librerías 3D...' : 'Inicializando Realidad Aumentada...'}
               </p>
               {!librariesLoaded && (
-                <p className="text-xs" style={{ color: 'oklch(0.6 0.05 200)' }}>
-                  Por favor, espera mientras se cargan las librerías necesarias
-                </p>
+                <>
+                  <p className="text-xs" style={{ color: 'oklch(0.6 0.05 200)' }}>
+                    Por favor, espera mientras se cargan las librerías necesarias
+                  </p>
+                  <p className="text-xs mt-2" style={{ color: 'oklch(0.5 0.05 200)' }}>
+                    Si tarda mucho, verifica tu conexión a internet
+                  </p>
+                </>
               )}
               {librariesLoaded && (
                 <p className="text-xs" style={{ color: 'oklch(0.6 0.05 200)' }}>
