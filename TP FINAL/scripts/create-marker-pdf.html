@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AR Marker - Imprimir</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: white;
+        }
+        .marker-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+        }
+        .marker-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border: 2px solid #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .instructions {
+            margin-top: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="marker-container">
+        <div class="title">Marcador de Realidad Aumentada</div>
+        <div class="subtitle">Simulador de Crecimiento Bacteriano</div>
+        <img src="../public/ar-data/marker-image.jpg" alt="AR Marker" class="marker-image" />
+        <div class="instructions">
+            <p><strong>Instrucciones:</strong></p>
+            <p>1. Imprime este marcador en papel blanco, tamaño A4</p>
+            <p>2. Asegúrate de que el marcador esté centrado y sin distorsiones</p>
+            <p>3. No escales el marcador - usa el tamaño original</p>
+            <p>4. Mantén el marcador plano y sin arrugas</p>
+            <p>5. Usa buena iluminación al apuntar la cámara al marcador</p>
+        </div>
+    </div>
+</body>
+</html>
+
