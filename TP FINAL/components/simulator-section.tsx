@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Calculator, TrendingUp, BarChart3, AlertCircle, Maximize2, Minimize2, Zap, Sparkles, Scan } from 'lucide-react'
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Scatter } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useGrowthData } from '@/lib/use-growth-data'
 import { CLUSTER_OPTIONS, predictGrowth, calculateGrowthRate } from '@/lib/data-processor'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -37,6 +37,7 @@ export function SimulatorSection() {
   const [t1, setT1] = useState<string>('2')
   const [t2, setT2] = useState<string>('4')
   const [projectionTime, setProjectionTime] = useState<string>('12')
+  const MAX_PROJECTION_TIME = 48 // Límite máximo de proyección en horas
   const [showResults, setShowResults] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -73,7 +74,9 @@ export function SimulatorSection() {
       // Obtener rango de tiempos
       const minTime = Math.min(...dataPoints.map(p => p.time))
       const maxTime = Math.max(...dataPoints.map(p => p.time))
-      const projectionMaxTime = Math.max(maxTime, parseFloat(projectionTime) || maxTime)
+      const requestedProjTime = parseFloat(projectionTime) || maxTime
+      // Limitar el tiempo de proyección al máximo permitido (convertir horas a minutos)
+      const projectionMaxTime = Math.max(maxTime, Math.min(requestedProjTime * 60, MAX_PROJECTION_TIME * 60))
       
       // Reducir puntos para mejor rendimiento (150 en lugar de 300)
       const step = (projectionMaxTime - minTime) / 150
@@ -126,9 +129,9 @@ export function SimulatorSection() {
 
     const time1 = parseFloat(t1)
     const time2 = parseFloat(t2)
-    const projTime = parseFloat(projectionTime)
+    const projTime = Math.min(parseFloat(projectionTime) || 0, MAX_PROJECTION_TIME)
 
-    if (isNaN(time1) || isNaN(time2) || isNaN(projTime)) return null
+    if (isNaN(time1) || isNaN(time2) || isNaN(projTime) || projTime > MAX_PROJECTION_TIME) return null
 
     const growth1 = predictGrowth(clusterData.model, time1)
     const growth2 = predictGrowth(clusterData.model, time2)
@@ -388,149 +391,7 @@ export function SimulatorSection() {
               </Card>
             </motion.div>
 
-            {/* Gráfico con modo 2D/3D */}
-            {clusterData && clusterData.model && (
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Card className="glass neon-border relative overflow-hidden"
-                  style={{
-                    borderColor: `${currentColor} / 0.5`,
-                    boxShadow: `0 0 40px ${currentColor} / 0.3`,
-                  }}
-                >
-                  <CardHeader className="relative z-10 pb-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                        >
-                          <TrendingUp className="h-5 w-5" style={{ color: currentColor }} />
-                        </motion.div>
-                        <CardTitle className="text-lg sm:text-xl" style={{ color: 'oklch(0.95 0.01 200)' }}>
-                          Curva de Crecimiento Ajustada
-                        </CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => setViewMode(viewMode === '3d' ? '2d' : '3d')}
-                          className="glass px-3 py-1.5 rounded border transition-all text-sm font-medium"
-                          style={{ 
-                            borderColor: `${currentColor} / 0.5`,
-                            color: currentColor,
-                            background: viewMode === '3d' ? `${currentColor} / 0.1` : 'transparent',
-                          }}
-                        >
-                          {viewMode === '3d' ? '3D' : '2D'}
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={toggleFullscreen}
-                          className="glass px-3 py-1.5 rounded border transition-all"
-                          style={{ 
-                            borderColor: `${currentColor} / 0.5`,
-                            color: currentColor,
-                          }}
-                          title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-                        >
-                          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => setShowARModal(true)}
-                          className="glass px-3 py-1.5 rounded border transition-all"
-                          style={{ 
-                            borderColor: `${currentColor} / 0.5`,
-                            color: currentColor,
-                            boxShadow: `0 0 15px ${currentColor} / 0.5`,
-                          }}
-                          title="Ver en Realidad Aumentada"
-                        >
-                          <Scan className="h-4 w-4" />
-                        </motion.button>
-                      </div>
-                    </div>
-                    <CardDescription className="mt-2" style={{ color: 'oklch(0.7 0.05 200)' }}>
-                      Datos experimentales y curva ajustada por mínimos cuadrados
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10 pt-4">
-                    {viewMode === '3d' ? (
-                      <div className="h-96 w-full">
-                        <GrowthChart3D
-                          data={chart3DData}
-                          experimentalData={experimental3DData}
-                          color={currentColor}
-                          isFullscreen={isFullscreen}
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-96 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <ComposedChart>
-                            <CartesianGrid strokeDasharray="3 3" 
-                              stroke="oklch(0.3 0.1 200 / 0.3)" 
-                            />
-                            <XAxis 
-                              dataKey="time" 
-                              label={{ value: 'Tiempo (horas)', position: 'insideBottom', offset: -5 }}
-                              stroke="oklch(0.7 0.05 200)"
-                            />
-                            <YAxis 
-                              label={{ value: 'Crecimiento Normalizado', angle: -90, position: 'insideLeft' }}
-                              domain={[0, 1]}
-                              stroke="oklch(0.7 0.05 200)"
-                            />
-                            <Tooltip 
-                              contentStyle={{
-                                background: 'oklch(0.12 0.04 240 / 0.95)',
-                                border: `1px solid ${currentColor} / 0.5`,
-                                borderRadius: '8px',
-                                color: 'oklch(0.95 0.01 200)',
-                              }}
-                            />
-                            <Legend />
-                            <Line 
-                              data={chartData}
-                              type="monotone" 
-                              dataKey="fitted" 
-                              name="Curva Ajustada" 
-                              stroke={currentColor}
-                              strokeWidth={3}
-                              dot={false}
-                              connectNulls
-                              animationDuration={1000}
-                            />
-                            <Scatter 
-                              data={experimentalData}
-                              dataKey="experimental" 
-                              name="Datos Experimentales"
-                              fill={currentColor}
-                              shape="circle"
-                            />
-                          </ComposedChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Cálculos con animaciones */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <Card className="glass neon-border relative overflow-hidden"
+            <Card className="glass neon-border relative overflow-hidden"
                 style={{
                   borderColor: `${currentColor} / 0.5`,
                   boxShadow: `0 0 30px ${currentColor} / 0.3`,
@@ -560,7 +421,20 @@ export function SimulatorSection() {
                     {[
                       { id: 't1', label: 'Tiempo inicial t₁ (horas)', value: t1, setValue: setT1 },
                       { id: 't2', label: 'Tiempo final t₂ (horas)', value: t2, setValue: setT2 },
-                      { id: 'projection', label: 'Proyección (horas)', value: projectionTime, setValue: setProjectionTime },
+                      { 
+                        id: 'projection', 
+                        label: `Proyección (horas, máx. ${MAX_PROJECTION_TIME}h)`, 
+                        value: projectionTime, 
+                        setValue: (val: string) => {
+                          const numVal = parseFloat(val)
+                          if (!isNaN(numVal) && numVal <= MAX_PROJECTION_TIME) {
+                            setProjectionTime(val)
+                          } else if (val === '' || val === '-') {
+                            setProjectionTime(val)
+                          }
+                        },
+                        max: MAX_PROJECTION_TIME,
+                      },
                     ].map((input, index) => (
                       <motion.div
                         key={input.id}
@@ -577,12 +451,30 @@ export function SimulatorSection() {
                             id={input.id}
                             type="number"
                             step="0.1"
+                            min="0"
+                            max={input.id === 'projection' ? MAX_PROJECTION_TIME : undefined}
                             value={input.value}
-                            onChange={(e) => input.setValue(e.target.value)}
-                            className="glass border transition-all duration-300"
+                            onChange={(e) => {
+                              if (input.id === 'projection') {
+                                const numVal = parseFloat(e.target.value)
+                                if (!isNaN(numVal) && numVal <= MAX_PROJECTION_TIME) {
+                                  input.setValue(e.target.value)
+                                } else if (e.target.value === '' || e.target.value === '-') {
+                                  input.setValue(e.target.value)
+                                }
+                              } else {
+                                input.setValue(e.target.value)
+                              }
+                            }}
+                            className="glass border transition-all duration-300 focus:border-2"
                             style={{ 
                               borderColor: `${currentColor} / 0.3`,
-                              focusBorderColor: currentColor,
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = currentColor;
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = `${currentColor} / 0.3`;
                             }}
                           />
                         </motion.div>
@@ -592,26 +484,20 @@ export function SimulatorSection() {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
                       <Button
                         onClick={handleCalculate}
                         disabled={isCalculating}
-                        className="w-full neon-border relative overflow-hidden"
-                        style={{
-                          background: isCalculating 
-                            ? `linear-gradient(135deg, ${currentColor} / 0.5, ${colors['30-rich']} / 0.5)`
-                            : `linear-gradient(135deg, ${currentColor}, ${colors['30-rich']})`,
-                          color: 'oklch(0.98 0 0)',
-                          boxShadow: `0 0 20px ${currentColor} / 0.5`,
-                        }}
+                        size="lg"
+                        className="w-full btn-primary font-semibold relative overflow-hidden"
                       >
                         {isCalculating ? (
                           <motion.div
                             className="flex items-center gap-2"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 1, repeat: Infinity }}
+                            animate={{ opacity: [0.7, 1, 0.7] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
                           >
                             <motion.div
                               animate={{ rotate: 360 }}
@@ -627,36 +513,16 @@ export function SimulatorSection() {
                             Calcular Métricas
                           </>
                         )}
-                        {isCalculating && (
-                          <motion.div
-                            className="absolute inset-0"
-                            style={{
-                              background: `linear-gradient(90deg, transparent, ${currentColor} / 0.5, transparent)`,
-                            }}
-                            animate={{
-                              x: ['-100%', '200%'],
-                            }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Infinity,
-                              ease: 'linear',
-                            }}
-                          />
-                        )}
                       </Button>
                     </motion.div>
                     <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
                       <Button
                         onClick={() => setShowARModal(true)}
-                        className="w-full neon-border relative overflow-hidden"
-                        style={{
-                          background: `linear-gradient(135deg, ${colors['30-rich']}, ${currentColor})`,
-                          color: 'oklch(0.98 0 0)',
-                          boxShadow: `0 0 20px ${currentColor} / 0.5`,
-                        }}
+                        size="lg"
+                        className="w-full btn-secondary font-semibold"
                       >
                         <Scan className="mr-2 h-5 w-5" />
                         Ver en Realidad Aumentada
@@ -808,6 +674,142 @@ export function SimulatorSection() {
                   </AnimatePresence>
                 </CardContent>
               </Card>
+
+            {/* Gráfico con modo 2D/3D */}
+            {clusterData && clusterData.model && (
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Card className="glass neon-border relative overflow-hidden"
+                  style={{
+                    borderColor: `${currentColor} / 0.5`,
+                    boxShadow: `0 0 40px ${currentColor} / 0.3`,
+                  }}
+                >
+                  <CardHeader className="relative z-10 pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <TrendingUp className="h-5 w-5" style={{ color: currentColor }} />
+                        </motion.div>
+                        <CardTitle className="text-lg sm:text-xl" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                          Curva de Crecimiento Ajustada
+                        </CardTitle>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setViewMode(viewMode === '3d' ? '2d' : '3d')}
+                          className="glass px-3 py-1.5 rounded border transition-all text-sm font-medium"
+                          style={{ 
+                            borderColor: `${currentColor} / 0.5`,
+                            color: currentColor,
+                            background: viewMode === '3d' ? `${currentColor} / 0.1` : 'transparent',
+                          }}
+                        >
+                          {viewMode === '3d' ? '3D' : '2D'}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={toggleFullscreen}
+                          className="glass px-3 py-1.5 rounded border transition-all"
+                          style={{ 
+                            borderColor: `${currentColor} / 0.5`,
+                            color: currentColor,
+                          }}
+                          title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+                        >
+                          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setShowARModal(true)}
+                          className="glass px-3 py-1.5 rounded border transition-all"
+                          style={{ 
+                            borderColor: `${currentColor} / 0.5`,
+                            color: currentColor,
+                            boxShadow: `0 0 15px ${currentColor} / 0.5`,
+                          }}
+                          title="Ver en Realidad Aumentada"
+                        >
+                          <Scan className="h-4 w-4" />
+                        </motion.button>
+                      </div>
+                    </div>
+                    <CardDescription className="mt-2" style={{ color: 'oklch(0.7 0.05 200)' }}>
+                      Datos experimentales y curva ajustada por mínimos cuadrados
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10 pt-4">
+                    {viewMode === '3d' ? (
+                      <div className="h-96 w-full">
+                        <GrowthChart3D
+                          data={chart3DData}
+                          experimentalData={experimental3DData}
+                          color={currentColor}
+                          isFullscreen={isFullscreen}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-96 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" 
+                              stroke="oklch(0.3 0.1 200 / 0.3)" 
+                            />
+                            <XAxis 
+                              dataKey="time" 
+                              label={{ value: 'Tiempo (horas)', position: 'insideBottom', offset: -5 }}
+                              stroke="oklch(0.7 0.05 200)"
+                            />
+                            <YAxis 
+                              label={{ value: 'Crecimiento Normalizado', angle: -90, position: 'insideLeft' }}
+                              domain={[0, 1]}
+                              stroke="oklch(0.7 0.05 200)"
+                            />
+                            <Tooltip 
+                              contentStyle={{
+                                background: 'oklch(0.12 0.04 240 / 0.95)',
+                                border: `1px solid ${currentColor} / 0.5`,
+                                borderRadius: '8px',
+                                color: 'oklch(0.95 0.01 200)',
+                              }}
+                            />
+                            <Legend />
+                            <Line 
+                              data={chartData}
+                              type="monotone" 
+                              dataKey="fitted" 
+                              name="Curva de Crecimiento" 
+                              stroke={currentColor}
+                              strokeWidth={3}
+                              dot={false}
+                              connectNulls
+                              animationDuration={1000}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Cálculos con animaciones */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
             </motion.div>
           </div>
         )}

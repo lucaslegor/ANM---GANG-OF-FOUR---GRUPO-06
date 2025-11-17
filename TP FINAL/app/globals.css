@@ -97,26 +97,56 @@
     }
   }
   
-  /* Neon glow effect utility */
+  /* Professional glow effect - more subtle */
   .neon-glow {
     text-shadow: 
-      0 0 10px currentColor,
-      0 0 20px currentColor,
-      0 0 40px currentColor;
+      0 0 8px currentColor,
+      0 0 16px currentColor;
   }
   
   .neon-border {
     box-shadow: 
-      0 0 10px currentColor,
-      0 0 20px currentColor,
-      inset 0 0 10px currentColor;
+      0 0 0 1px currentColor,
+      0 2px 8px currentColor / 0.2,
+      inset 0 1px 0 currentColor / 0.1;
   }
   
-  /* Glassmorphism effect */
+  /* Professional glassmorphism effect */
   .glass {
-    background: oklch(0.12 0.04 240 / 0.4);
+    background: oklch(0.12 0.04 240 / 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid oklch(0.3 0.1 200 / 0.2);
+    box-shadow: 0 8px 32px oklch(0 0 0 / 0.12);
+  }
+  
+  /* Professional button styles */
+  .btn-primary {
+    background: linear-gradient(135deg, oklch(0.65 0.2 200), oklch(0.6 0.22 240));
+    color: oklch(0.98 0 0);
+    border: none;
+    box-shadow: 0 4px 16px oklch(0.65 0.2 200 / 0.3), 
+                0 2px 8px oklch(0 0 0 / 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px oklch(0.65 0.2 200 / 0.4), 
+                0 4px 12px oklch(0 0 0 / 0.15);
+  }
+  
+  .btn-secondary {
+    background: oklch(0.15 0.02 240 / 0.8);
+    color: oklch(0.75 0.2 200);
+    border: 1px solid oklch(0.75 0.2 200 / 0.3);
     backdrop-filter: blur(12px);
-    border: 1px solid oklch(0.3 0.1 200 / 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .btn-secondary:hover {
+    background: oklch(0.75 0.2 200 / 0.1);
+    border-color: oklch(0.75 0.2 200 / 0.5);
+    transform: translateY(-1px);
   }
   
   /* 3D transform utilities */

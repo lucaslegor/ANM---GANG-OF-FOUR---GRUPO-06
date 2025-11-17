@@ -19,8 +19,8 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
   color: string
   hoveredPoint: number | null
 }) {
-  const lineRef = useRef<THREE.BufferGeometry>(null)
-  const pointsRef = useRef<THREE.Points>(null)
+  const lineRef = useRef<any>(null)
+  const pointsRef = useRef<any>(null)
 
   // Convertir color hex a RGB para Three.js
   const rgbColor = useMemo(() => {
@@ -28,7 +28,7 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
     const r = parseInt(hex.substring(0, 2), 16) / 255
     const g = parseInt(hex.substring(2, 4), 16) / 255
     const b = parseInt(hex.substring(4, 6), 16) / 255
-    return new THREE.Color(r, g, b)
+    return new (THREE as any).Color(r, g, b)
   }, [color])
 
   // Normalizar datos para el espacio 3D
@@ -42,7 +42,7 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
       const x = ((point.time - minTime) / timeRange) * 10 - 5
       const y = point.growth * 5
       const z = Math.sin(index * 0.1) * 0.5 // Efecto de profundidad
-      return new THREE.Vector3(x, y, z)
+      return new (THREE as any).Vector3(x, y, z)
     })
   }, [data])
 
@@ -56,17 +56,17 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
       const x = ((point.time - minTime) / timeRange) * 10 - 5
       const y = point.growth * 5
       const z = Math.sin(index * 0.1) * 0.5
-      return new THREE.Vector3(x, y, z)
+      return new (THREE as any).Vector3(x, y, z)
     })
   }, [experimentalData, data])
 
   // Animación de la curva (optimizada)
   useFrame(() => {
     // Reducir velocidad de rotación para mejor rendimiento
-    if (lineRef.current) {
-      lineRef.current.rotateY(0.0005)
+    if (lineRef.current?.rotation) {
+      lineRef.current.rotation.y += 0.0005
     }
-    if (pointsRef.current) {
+    if (pointsRef.current?.rotation) {
       pointsRef.current.rotation.y += 0.0005
     }
   })
@@ -83,8 +83,8 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
         />
       )}
 
-      {/* Puntos experimentales */}
-      {experimentalPoints.length > 0 && (
+      {/* Puntos experimentales - Ocultos para cumplir con requisitos de confidencialidad */}
+      {/* {experimentalPoints.length > 0 && (
         <Points ref={pointsRef} positions={experimentalPoints.map(p => [p.x, p.y, p.z]).flat()}>
           <pointsMaterial
             size={0.2}
@@ -94,10 +94,10 @@ function GrowthCurve3D({ data, experimentalData, color, hoveredPoint }: {
             sizeAttenuation
           />
         </Points>
-      )}
+      )} */}
 
       {/* Grid de fondo */}
-      <gridHelper args={[10, 20, rgbColor, rgbColor]} position={[0, 0, -2]} />
+      <primitive object={new (THREE as any).GridHelper(10, 20, rgbColor, rgbColor)} position={[0, 0, -2]} />
     </group>
   )
 }
@@ -128,9 +128,9 @@ export function GrowthChart3D({ data, experimentalData, color, isFullscreen }: G
         camera={{ position: [0, 2, 8], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} color={hexColor} />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color={hexColor} />
+        <primitive object={new (THREE as any).AmbientLight(0xffffff, 0.5)} />
+        <primitive object={new (THREE as any).PointLight(hexColor, 1, 100)} position={[10, 10, 10]} />
+        <primitive object={new (THREE as any).PointLight(hexColor, 0.5, 100)} position={[-10, -10, -10]} />
         
         <GrowthCurve3D 
           data={data} 
@@ -147,7 +147,7 @@ export function GrowthChart3D({ data, experimentalData, color, isFullscreen }: G
           maxDistance={20}
         />
         
-        <axesHelper args={[5]} />
+        <primitive object={new (THREE as any).AxesHelper(5)} />
       </Canvas>
     </motion.div>
   )

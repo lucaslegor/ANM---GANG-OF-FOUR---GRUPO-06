@@ -6,8 +6,8 @@ import './globals.css'
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'BioGrowth Analytics - Simulación Inteligente de Crecimiento Bacteriano',
-  description: 'Modelos predictivos basados en datos experimentales de E. coli K-12. Análisis microbiológico avanzado con simulaciones digitales.',
+  title: 'BioGrowth Analytics - Soluciones de Análisis y Simulación de Crecimiento Bacteriano',
+  description: 'Líderes en análisis y simulación de crecimiento bacteriano. Ofrecemos soluciones empresariales avanzadas para investigación y desarrollo en biotecnología.',
   generator: 'v0.app',
   icons: {
     icon: [

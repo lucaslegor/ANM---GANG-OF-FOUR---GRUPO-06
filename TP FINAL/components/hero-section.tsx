@@ -87,9 +87,9 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
 
   return (
     <section className="min-h-screen flex items-center justify-center py-20 pt-32 md:pt-40 relative">
-      <div className="absolute inset-0 opacity-30"
+      <div className="absolute inset-0 opacity-15"
         style={{
-          background: 'radial-gradient(circle at 30% 50%, oklch(0.75 0.25 200 / 0.3), transparent 50%), radial-gradient(circle at 70% 50%, oklch(0.7 0.28 320 / 0.3), transparent 50%)',
+          background: 'radial-gradient(circle at 30% 50%, oklch(0.65 0.2 200 / 0.2), transparent 60%), radial-gradient(circle at 70% 50%, oklch(0.6 0.22 240 / 0.2), transparent 60%)',
         }}
       />
       
@@ -97,59 +97,54 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="inline-block">
-              <div className="flex items-center gap-2 rounded-full glass px-4 py-2 text-sm font-medium neon-border"
+              <div className="flex items-center gap-2 rounded-full glass px-5 py-2.5 text-sm font-medium"
                 style={{
-                  borderColor: 'oklch(0.75 0.25 200 / 0.5)',
-                  color: 'oklch(0.75 0.25 200)',
+                  borderColor: 'oklch(0.75 0.2 200 / 0.25)',
+                  color: 'oklch(0.75 0.2 200)',
                 }}
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                    style={{ background: 'oklch(0.75 0.25 200)' }}
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                    style={{ background: 'oklch(0.75 0.2 200)' }}
                   />
                   <span className="relative inline-flex rounded-full h-2 w-2"
-                    style={{ background: 'oklch(0.75 0.25 200)' }}
+                    style={{ background: 'oklch(0.75 0.2 200)' }}
                   />
                 </span>
-                Tecnología de simulación avanzada
+                Soluciones Empresariales de Análisis
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance neon-glow"
-              style={{ color: 'oklch(0.95 0.01 200)' }}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance leading-tight"
+              style={{ 
+                color: 'oklch(0.98 0.01 200)',
+                textShadow: '0 2px 8px oklch(0 0 0 / 0.2)',
+              }}
             >
-              Simulación Inteligente de Crecimiento Bacteriano
+              BioGrowth Analytics
             </h1>
             
-            <p className="text-lg md:text-xl text-pretty leading-relaxed"
-              style={{ color: 'oklch(0.7 0.05 200)' }}
+            <p className="text-xl md:text-2xl text-pretty leading-relaxed font-light"
+              style={{ color: 'oklch(0.75 0.05 200)' }}
             >
-              Modelos predictivos basados en datos experimentales de <em>E. coli K-12</em>. Análisis microbiológico avanzado mediante ajustes de mínimos cuadrados.
+              Análisis predictivos y simulaciones de crecimiento bacteriano para optimizar sus procesos de investigación y desarrollo en biotecnología.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 size="lg" 
-                className="text-base neon-border group"
-                onClick={() => handleNavigation('simulador')}
-                style={{
-                  background: 'linear-gradient(135deg, oklch(0.75 0.25 200), oklch(0.7 0.28 320))',
-                  color: 'oklch(0.98 0 0)',
-                }}
+                className="text-base px-8 py-6 btn-primary group font-semibold"
+                onClick={() => handleNavigation('precios')}
               >
-                Probar Simulador
+                Ver Planes y Precios
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 size="lg" 
-                className="text-base glass neon-border"
-                onClick={() => handleNavigation('investigacion')}
-                style={{
-                  borderColor: 'oklch(0.75 0.25 200 / 0.5)',
-                  color: 'oklch(0.75 0.25 200)',
-                }}
+                className="text-base px-8 py-6 btn-secondary font-semibold"
+                onClick={() => window.location.href = '/simulador'}
               >
-                Ver Investigación
+                Acceder a Herramientas
               </Button>
             </div>
           </div>

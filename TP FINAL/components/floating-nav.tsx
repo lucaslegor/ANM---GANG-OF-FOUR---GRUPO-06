@@ -1,6 +1,6 @@
 'use client'
 
-import { FlaskConical, Database, Calculator, Play, FileText, Mail } from 'lucide-react'
+import { FlaskConical, DollarSign, BarChart3, Sparkles, Mail, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface FloatingNavProps {
@@ -11,10 +11,10 @@ interface FloatingNavProps {
 export function FloatingNav({ activeSection, setActiveSection }: FloatingNavProps) {
   const navItems = [
     { id: 'inicio', label: 'Inicio', icon: FlaskConical },
-    { id: 'dataset', label: 'Dataset', icon: Database },
-    { id: 'modelado', label: 'Modelado', icon: Calculator },
-    { id: 'simulador', label: 'Simulador', icon: Play },
-    { id: 'investigacion', label: 'Investigación', icon: FileText },
+    { id: 'nosotros', label: 'Nosotros', icon: Users },
+    { id: 'diferenciacion', label: 'Diferenciación', icon: Sparkles },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'precios', label: 'Precios', icon: DollarSign },
     { id: 'contacto', label: 'Contacto', icon: Mail },
   ]
 

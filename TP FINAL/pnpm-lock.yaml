@@ -207,6 +207,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.5)
+      '@types/three':
+        specifier: ^0.181.0
+        version: 0.181.0
       pdfkit:
         specifier: ^0.17.2
         version: 0.17.2
