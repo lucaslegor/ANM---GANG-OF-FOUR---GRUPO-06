@@ -6,15 +6,12 @@ import { Card } from '@/components/ui/card'
 import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateResponse } from '@/lib/chatbot-engine'
-import { useGrowthData } from '@/lib/use-growth-data'
-import { CLUSTER_OPTIONS } from '@/lib/data-processor'
 import ReactMarkdown from 'react-markdown'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
-  type?: 'theoretical' | 'calculation' | 'mixed' | 'greeting' | 'unknown'
-  calculationResult?: any
+  type?: 'company' | 'greeting' | 'unknown'
 }
 
 export function AIAssistant() {
@@ -22,14 +19,13 @@ export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: '¡Hola! 👋 Soy tu asistente inteligente para **BioGrowth Analytics**.\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Tasas de crecimiento, proyecciones, métricas (R², RMSE)\n📚 **Teoría**: Explicaciones sobre regresión lineal, mínimos cuadrados, modelos de crecimiento\n\n¿En qué puedo ayudarte?',
+      content: '¡Hola! 👋 Bienvenido a **BioGrowth Analytics**.\n\nSoy tu asistente virtual y estoy aquí para ayudarte con cualquier pregunta sobre:\n\n🏢 **Nuestra Empresa**\n💰 **Planes y Precios**\n🛠️ **Servicios y Productos**\n📞 **Contacto y Soporte**\n\n¿En qué puedo ayudarte hoy?',
       type: 'greeting',
     },
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { getClusterById, loading: dataLoading } = useGrowthData()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,13 +51,12 @@ export function AIAssistant() {
     await new Promise(resolve => setTimeout(resolve, 500))
 
     try {
-      const response = generateResponse(input.trim(), getClusterById)
+      const response = generateResponse(input.trim())
       
       const assistantMessage: Message = {
         role: 'assistant',
         content: response.content,
         type: response.type,
-        calculationResult: response.calculationResult,
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -82,11 +77,10 @@ export function AIAssistant() {
 
   const handleQuickAction = (action: string) => {
     const quickActions: Record<string, string> = {
-      'tasa-crecimiento': '¿Cuál es la tasa de crecimiento entre 2 y 4 horas para 25°C - Medio Rico?',
-      'r2': '¿Qué es el coeficiente de determinación R²?',
-      'regresion': '¿Qué es la regresión lineal?',
-      'minimos-cuadrados': '¿Cómo funciona el método de mínimos cuadrados?',
-      'proyeccion': 'Proyecta el crecimiento a 12 horas para 30°C - Medio Rico',
+      'servicios': '¿Qué servicios ofrecen?',
+      'precios': '¿Cuánto cuesta? ¿Qué planes tienen?',
+      'contacto': '¿Cómo puedo contactarlos?',
+      'empresa': '¿Quiénes son? ¿Qué hace BioGrowth Analytics?',
     }
 
     if (quickActions[action]) {
@@ -330,15 +324,15 @@ export function AIAssistant() {
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {[
-                      { id: 'tasa-crecimiento', label: 'Tasa' },
-                      { id: 'r2', label: 'R²' },
-                      { id: 'regresion', label: 'Regresión' },
-                      { id: 'proyeccion', label: 'Proyección' },
+                      { id: 'servicios', label: 'Servicios' },
+                      { id: 'precios', label: 'Precios' },
+                      { id: 'contacto', label: 'Contacto' },
+                      { id: 'empresa', label: 'Empresa' },
                     ].map(action => (
                       <button
                         key={action.id}
                         onClick={() => handleQuickAction(action.id)}
-                        className="px-2 py-1 text-xs rounded glass border transition-all hover:scale-105"
+                        className="px-2 py-1 text-xs rounded glass border transition-all hover:scale-105 cursor-pointer"
                         style={{
                           borderColor: 'oklch(0.75 0.25 200 / 0.3)',
                           color: 'oklch(0.75 0.25 200)',
@@ -371,17 +365,17 @@ export function AIAssistant() {
                       color: 'oklch(0.95 0.01 200)',
                       background: 'oklch(0.12 0.04 240 / 0.3)',
                     }}
-                    disabled={isTyping || dataLoading}
+                    disabled={isTyping}
                   />
                   <Button
                     onClick={handleSend}
                     size="icon"
                     className="h-10 w-10"
-                    disabled={isTyping || dataLoading || !input.trim()}
+                    disabled={isTyping || !input.trim()}
                     style={{
                       background: 'linear-gradient(135deg, oklch(0.75 0.25 200), oklch(0.7 0.28 320))',
                       color: 'oklch(0.98 0 0)',
-                      opacity: isTyping || dataLoading || !input.trim() ? 0.5 : 1,
+                      opacity: isTyping || !input.trim() ? 0.5 : 1,
                     }}
                   >
                     <Send className="h-4 w-4" />

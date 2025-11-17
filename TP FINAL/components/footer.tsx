@@ -12,7 +12,7 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group cursor-pointer">
               <FlaskConical className="h-6 w-6 neon-glow transition-all group-hover:scale-110" 
                 style={{ color: 'oklch(0.75 0.25 200)' }} 
               />
@@ -26,12 +26,12 @@ export function Footer() {
               Simulación inteligente de crecimiento bacteriano mediante modelos matemáticos avanzados.
             </p>
             <div className="flex gap-3">
-              <Link href="#" className="p-2 rounded-lg glass border transition-all hover:scale-110"
+              <Link href="#" className="p-2 rounded-lg glass border transition-all hover:scale-110 cursor-pointer"
                 style={{ borderColor: 'oklch(0.75 0.25 200 / 0.3)' }}
               >
                 <Github className="h-4 w-4" style={{ color: 'oklch(0.75 0.25 200)' }} />
               </Link>
-              <Link href="#" className="p-2 rounded-lg glass border transition-all hover:scale-110"
+              <Link href="#" className="p-2 rounded-lg glass border transition-all hover:scale-110 cursor-pointer"
                 style={{ borderColor: 'oklch(0.75 0.25 200 / 0.3)' }}
               >
                 <Mail className="h-4 w-4" style={{ color: 'oklch(0.75 0.25 200)' }} />

@@ -1,57 +1,33 @@
-// Motor del chatbot: detecta intenciones y genera respuestas
+// Motor del chatbot: detecta intenciones y genera respuestas sobre la empresa
 
 import { searchKnowledge, getRelatedTopics, knowledgeBase } from './knowledge-base'
-import { CLUSTER_OPTIONS, predictGrowth, calculateGrowthRate } from './data-processor'
-// Removed useGrowthData import - we'll pass getClusterById as parameter
 
-export type MessageType = 'theoretical' | 'calculation' | 'mixed' | 'greeting' | 'unknown'
+export type MessageType = 'company' | 'greeting' | 'unknown'
 
 export interface ChatbotResponse {
   type: MessageType
   content: string
-  calculationResult?: {
-    cluster?: string
-    t1?: number
-    t2?: number
-    growthRate?: number
-    r2?: number
-    rmse?: number
-    projection?: number
-  }
   relatedTopics?: string[]
 }
 
-// Patrones para detectar preguntas de cálculo
-const calculationPatterns = [
-  /tasa.*crecimiento.*entre.*(\d+).*y.*(\d+)/i,
-  /crecimiento.*entre.*(\d+).*y.*(\d+)/i,
-  /calcular.*tasa/i,
-  /cuál.*tasa.*(\d+).*(\d+)/i,
-  /qué.*tasa.*(\d+).*(\d+)/i,
-  /r²|r2|coeficiente.*determinación/i,
-  /rmse|error.*cuadrático/i,
-  /proyectar.*crecimiento/i,
-  /predicción.*tiempo.*(\d+)/i,
-  /crecimiento.*tiempo.*(\d+)/i,
-]
-
-// Patrones para detectar preguntas teóricas
-const theoreticalPatterns = [
-  /qué.*es/i,
-  /cómo.*funciona/i,
-  /cómo.*se.*calcula/i,
-  /explica/i,
-  /definición/i,
-  /qué.*significa/i,
-  /por qué/i,
-  /cuál.*diferencia/i,
+// Patrones para detectar preguntas sobre la empresa
+const companyPatterns = [
+  /empresa|quienes somos|sobre nosotros|nosotros|bio|biogrowth/i,
+  /servicios|que ofrecen|que hacen|que ofrecemos|soluciones/i,
+  /productos|producto|herramientas|plataforma|software|aplicacion/i,
+  /precio|precios|costo|costos|plan|planes|tarifa|cuanto cuesta/i,
+  /contacto|contactar|email|correo|telefono|soporte|ayuda/i,
+  /caracteristicas|funciones|funcionalidades|features|que incluye/i,
+  /caso de uso|casos de uso|para que sirve|usos|aplicaciones|quien lo usa/i,
+  /beneficios|ventajas|por que elegirnos|por que nosotros/i,
+  /demo|demostracion|prueba|probar|test|gratis|gratuito/i,
 ]
 
 // Patrones para detectar saludos
 const greetingPatterns = [
   /hola|hi|hello|buenos|buenas/i,
   /gracias|thanks|thank you/i,
-  /adiós|bye|chau/i,
+  /adiós|bye|chau|hasta luego/i,
 ]
 
 export function detectIntent(query: string): MessageType {
@@ -62,77 +38,18 @@ export function detectIntent(query: string): MessageType {
     return 'greeting'
   }
   
-  // Verificar si es pregunta de cálculo
-  const isCalculation = calculationPatterns.some(pattern => pattern.test(query))
+  // Verificar si es pregunta sobre la empresa
+  const isCompany = companyPatterns.some(pattern => pattern.test(query)) ||
+                   searchKnowledge(query) !== null
   
-  // Verificar si es pregunta teórica
-  const isTheoretical = theoreticalPatterns.some(pattern => pattern.test(query)) ||
-                       searchKnowledge(query) !== null
-  
-  if (isCalculation && isTheoretical) {
-    return 'mixed'
-  } else if (isCalculation) {
-    return 'calculation'
-  } else if (isTheoretical) {
-    return 'theoretical'
+  if (isCompany) {
+    return 'company'
   }
   
   return 'unknown'
 }
 
-export function extractCalculationParams(query: string): {
-  cluster?: string
-  t1?: number
-  t2?: number
-  projectionTime?: number
-} {
-  const params: { cluster?: string; t1?: number; t2?: number; projectionTime?: number } = {}
-  
-  // Extraer tiempos
-  const timeMatches = query.match(/(\d+)\s*(?:y|and|a|hora|horas|hour|hours)/gi)
-  if (timeMatches && timeMatches.length >= 2) {
-    const times = timeMatches.map(m => parseInt(m.match(/\d+/)?.[0] || '0'))
-    if (times.length >= 2) {
-      params.t1 = Math.min(times[0], times[1])
-      params.t2 = Math.max(times[0], times[1])
-    }
-  } else {
-    // Buscar patrones como "entre 2 y 4"
-    const betweenMatch = query.match(/(?:entre|between)\s*(\d+)\s*(?:y|and|a)\s*(\d+)/i)
-    if (betweenMatch) {
-      params.t1 = parseInt(betweenMatch[1])
-      params.t2 = parseInt(betweenMatch[2])
-    }
-  }
-  
-  // Extraer clúster
-  for (const option of CLUSTER_OPTIONS) {
-    const clusterKeywords = [
-      option.label.toLowerCase(),
-      option.id.toLowerCase(),
-      option.temperature.toString(),
-      option.medium.toLowerCase(),
-    ]
-    
-    if (clusterKeywords.some(keyword => query.toLowerCase().includes(keyword))) {
-      params.cluster = option.id
-      break
-    }
-  }
-  
-  // Extraer tiempo de proyección
-  const projectionMatch = query.match(/(?:proyectar|proyección|predicción|predecir).*(?:tiempo|time)?.*(\d+)/i)
-  if (projectionMatch) {
-    params.projectionTime = parseInt(projectionMatch[1])
-  }
-  
-  return params
-}
-
-export function generateResponse(
-  query: string,
-  getClusterById: (id: string) => any
-): ChatbotResponse {
+export function generateResponse(query: string): ChatbotResponse {
   const intent = detectIntent(query)
   const lowerQuery = query.toLowerCase()
   
@@ -141,35 +58,31 @@ export function generateResponse(
     if (/hola|hi|hello|buenos|buenas/i.test(query)) {
       return {
         type: 'greeting',
-        content: '¡Hola! 👋 Soy tu asistente inteligente para BioGrowth Analytics. Puedo ayudarte con:\n\n📊 **Cálculos**: Tasas de crecimiento, proyecciones, métricas (R², RMSE)\n📚 **Teoría**: Explicaciones sobre regresión lineal, mínimos cuadrados, modelos de crecimiento\n\n¿En qué puedo ayudarte?'
+        content: '¡Hola! 👋 Bienvenido a **BioGrowth Analytics**.\n\nSoy tu asistente virtual y estoy aquí para ayudarte con cualquier pregunta sobre:\n\n🏢 **Nuestra Empresa**\n💰 **Planes y Precios**\n🛠️ **Servicios y Productos**\n📞 **Contacto y Soporte**\n\n¿En qué puedo ayudarte hoy?'
       }
     }
     if (/gracias|thanks/i.test(query)) {
       return {
         type: 'greeting',
-        content: '¡De nada! 😊 Si tienes más preguntas, estaré aquí para ayudarte.'
+        content: '¡De nada! 😊 Estoy aquí para ayudarte. Si tienes más preguntas sobre BioGrowth Analytics, no dudes en preguntarme.'
       }
     }
-    if (/adiós|bye|chau/i.test(query)) {
+    if (/adiós|bye|chau|hasta luego/i.test(query)) {
       return {
         type: 'greeting',
-        content: '¡Hasta luego! 👋 Fue un placer ayudarte. Vuelve cuando necesites más información.'
+        content: '¡Hasta luego! 👋 Fue un placer ayudarte. Esperamos verte pronto en BioGrowth Analytics.\n\nSi necesitas más información, puedes contactarnos en **contacto@biogrowthanalytics.com**'
       }
     }
   }
   
-  // Respuestas teóricas
-  if (intent === 'theoretical' || intent === 'mixed') {
+  // Respuestas sobre la empresa
+  if (intent === 'company') {
     const knowledge = searchKnowledge(query)
     
     if (knowledge) {
       let response = `## ${knowledge.title}\n\n${knowledge.definition}\n\n`
       
-      if (knowledge.formula) {
-        response += `**Fórmula:**\n\`\`\`\n${knowledge.formula}\n\`\`\`\n\n`
-      }
-      
-      response += `**Explicación:**\n${knowledge.explanation}\n\n`
+      response += `**${knowledge.explanation}**\n\n`
       
       if (knowledge.examples && knowledge.examples.length > 0) {
         response += `**Ejemplos:**\n`
@@ -184,123 +97,39 @@ export function generateResponse(
       ) || '')
       
       if (related.length > 0) {
-        response += `**Temas relacionados:** ${related.map(t => t.title).join(', ')}\n`
+        response += `**Temas relacionados:**\n`
+        related.forEach(topic => {
+          response += `- ${topic.title}\n`
+        })
+        response += `\n`
+      }
+      
+      // Agregar call-to-action según el tema
+      if (knowledge.title === 'Planes y Precios' || knowledge.title === 'Prueba Gratuita') {
+        response += `💡 **¿Quieres probar la plataforma?** Puedes registrarte gratis y empezar a usar el simulador ahora mismo.\n\n`
+      }
+      
+      if (knowledge.title === 'Contacto y Soporte') {
+        response += `📧 **¿Tienes más preguntas?** No dudes en contactarnos directamente. Estamos aquí para ayudarte.\n\n`
       }
       
       return {
-        type: intent,
+        type: 'company',
         content: response,
         relatedTopics: related.map(t => t.title)
       }
     }
-  }
-  
-  // Respuestas de cálculo
-  if (intent === 'calculation' || intent === 'mixed') {
-    const params = extractCalculationParams(query)
-    const clusterId = params.cluster || '25-rich'
-    const clusterData = getClusterById(clusterId)
     
-    if (!clusterData || !clusterData.model) {
-      return {
-        type: 'calculation',
-        content: '⚠️ No pude encontrar los datos del clúster solicitado. Por favor, especifica el clúster (ej: "25°C - Medio Rico") o selecciona uno de los disponibles.'
-      }
-    }
-    
-    const { model, rSquared, rmse } = clusterData
-    const r2 = rSquared || 0
-    const clusterOption = CLUSTER_OPTIONS.find(opt => opt.id === clusterId)
-    
-    let response = ''
-    const calculationResult: ChatbotResponse['calculationResult'] = {
-      cluster: clusterId,
-      r2: r2,
-      rmse: rmse
-    }
-    
-    // Cálculo de tasa de crecimiento
-    if (params.t1 !== undefined && params.t2 !== undefined) {
-      const growth1 = predictGrowth(model, params.t1)
-      const growth2 = predictGrowth(model, params.t2)
-      const growthRate = calculateGrowthRate(model, params.t1, params.t2)
-      
-      calculationResult.t1 = params.t1
-      calculationResult.t2 = params.t2
-      calculationResult.growthRate = growthRate
-      
-      response += `## 📊 Cálculo de Tasa de Crecimiento\n\n`
-      response += `**Clúster:** ${clusterOption?.label || clusterId}\n\n`
-      response += `**Parámetros:**\n`
-      response += `- Tiempo inicial (t₁): ${params.t1} horas\n`
-      response += `- Tiempo final (t₂): ${params.t2} horas\n`
-      response += `- Crecimiento en t₁: ${growth1.toFixed(4)}\n`
-      response += `- Crecimiento en t₂: ${growth2.toFixed(4)}\n\n`
-      response += `**Tasa de Crecimiento:**\n\`\`\`\nTasa = (g(t₂) - g(t₁)) / (t₂ - t₁)\nTasa = (${growth2.toFixed(4)} - ${growth1.toFixed(4)}) / (${params.t2} - ${params.t1})\nTasa = ${growthRate.toFixed(4)} unidades/hora\n\`\`\`\n\n`
-      
-      // Si es pregunta mixta, agregar explicación teórica
-      if (intent === 'mixed') {
-        const knowledge = searchKnowledge('tasa_crecimiento')
-        if (knowledge) {
-          response += `## 📚 Explicación Teórica\n\n${knowledge.definition}\n\n`
-          response += `**Fórmula:** ${knowledge.formula}\n\n`
-        }
-      }
-    }
-    
-    // Proyección de crecimiento
-    if (params.projectionTime !== undefined) {
-      const projection = predictGrowth(model, params.projectionTime)
-      calculationResult.projection = projection
-      
-      if (!response) {
-        response += `## 🔮 Proyección de Crecimiento\n\n`
-        response += `**Clúster:** ${clusterOption?.label || clusterId}\n\n`
-      }
-      response += `**Proyección a ${params.projectionTime} horas:** ${projection.toFixed(4)}\n\n`
-    }
-    
-    // Mostrar métricas del modelo
-    if (/r²|r2|coeficiente|rmse|error/i.test(query)) {
-      if (!response) {
-        response += `## 📈 Métricas del Modelo\n\n`
-        response += `**Clúster:** ${clusterOption?.label || clusterId}\n\n`
-      }
-      response += `**Métricas:**\n`
-      response += `- **R² (Coeficiente de Determinación):** ${r2.toFixed(4)}\n`
-      response += `- **RMSE (Error Cuadrático Medio):** ${rmse.toFixed(4)}\n\n`
-      
-      // Interpretación
-      if (r2 > 0.9) {
-        response += `✅ El modelo tiene un **excelente ajuste** (R² > 0.9)\n`
-      } else if (r2 > 0.7) {
-        response += `✅ El modelo tiene un **buen ajuste** (R² > 0.7)\n`
-      } else {
-        response += `⚠️ El modelo tiene un ajuste moderado (R² < 0.7)\n`
-      }
-    }
-    
-    if (!response) {
-      response = `He procesado tu consulta para el clúster **${clusterOption?.label || clusterId}**.\n\n`
-      response += `**Métricas del modelo:**\n`
-      response += `- R²: ${r2.toFixed(4)}\n`
-      response += `- RMSE: ${rmse.toFixed(4)}\n\n`
-      response += `¿Quieres calcular algo específico? Por ejemplo:\n`
-      response += `- "¿Cuál es la tasa de crecimiento entre 2 y 4 horas?"\n`
-      response += `- "Proyecta el crecimiento a 12 horas"`
-    }
-    
+    // Respuesta genérica sobre la empresa si no se encuentra un tema específico
     return {
-      type: intent,
-      content: response,
-      calculationResult
+      type: 'company',
+      content: `¡Hola! 👋 Soy el asistente de **BioGrowth Analytics**.\n\nPuedo ayudarte con información sobre:\n\n🏢 **Nuestra Empresa** - Quiénes somos y qué hacemos\n🛠️ **Servicios y Productos** - Qué ofrecemos\n💰 **Planes y Precios** - Opciones disponibles\n📞 **Contacto** - Cómo comunicarte con nosotros\n✨ **Características** - Qué incluye la plataforma\n🎯 **Casos de Uso** - Para quién es útil\n💡 **Beneficios** - Por qué elegirnos\n\n¿Sobre qué te gustaría saber más?`
     }
   }
   
   // Respuesta por defecto
   return {
     type: 'unknown',
-    content: `No estoy seguro de cómo ayudarte con eso. 🤔\n\nPuedo ayudarte con:\n\n📊 **Cálculos**:\n- "¿Cuál es la tasa de crecimiento entre 2 y 4 horas para 25°C - Medio Rico?"\n- "Proyecta el crecimiento a 12 horas"\n- "¿Cuál es el R² del modelo?"\n\n📚 **Preguntas teóricas**:\n- "¿Qué es la regresión lineal?"\n- "¿Cómo se calcula el R²?"\n- "¿Qué significa la tasa de crecimiento?"\n\n¿Puedes reformular tu pregunta?`
+    content: `No estoy seguro de cómo ayudarte con eso. 🤔\n\nPuedo ayudarte con información sobre:\n\n🏢 **Nuestra Empresa**\n💰 **Planes y Precios**\n🛠️ **Servicios y Productos**\n📞 **Contacto y Soporte**\n✨ **Características de la Plataforma**\n🎯 **Casos de Uso**\n💡 **Beneficios**\n\n**Ejemplos de preguntas:**\n- "¿Qué servicios ofrecen?"\n- "¿Cuánto cuesta?"\n- "¿Cómo los contacto?"\n- "¿Qué incluye la plataforma?"\n- "¿Puedo probarlo gratis?"\n\n¿Puedes reformular tu pregunta?`
   }
 }
-

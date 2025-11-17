@@ -1,183 +1,324 @@
-// Base de conocimiento teórica para el chatbot
+// Base de conocimiento sobre BioGrowth Analytics para el chatbot
 
 export interface KnowledgeEntry {
   keywords: string[]
   title: string
   definition: string
-  formula?: string
   explanation: string
   examples?: string[]
   relatedTopics?: string[]
 }
 
 export const knowledgeBase: Record<string, KnowledgeEntry> = {
-  regression_lineal: {
-    keywords: ['regresión lineal', 'regresion lineal', 'linear regression', 'regresión', 'regresion'],
-    title: 'Regresión Lineal',
-    definition: 'La regresión lineal es un método estadístico utilizado para modelar la relación entre una variable dependiente (y) y una o más variables independientes (x) mediante una línea recta.',
-    formula: 'y = mx + b',
-    explanation: `Donde:
-- **y** es la variable dependiente (crecimiento bacteriano)
-- **x** es la variable independiente (tiempo)
-- **m** es la pendiente de la recta
-- **b** es la intersección con el eje y
+  empresa: {
+    keywords: ['empresa', 'quienes somos', 'sobre nosotros', 'nosotros', 'bio', 'biogrowth', 'analytics'],
+    title: 'BioGrowth Analytics',
+    definition: 'BioGrowth Analytics es una plataforma especializada en análisis predictivos y simulaciones de crecimiento bacteriano para optimizar procesos de investigación y desarrollo en biotecnología.',
+    explanation: `**Nuestra Misión:**
+Proporcionar herramientas avanzadas de análisis y simulación que permitan a investigadores, científicos y empresas del sector biotecnológico optimizar sus procesos de investigación y desarrollo.
 
-La regresión lineal encuentra la mejor línea recta que pasa por los puntos de datos, minimizando la suma de los cuadrados de las diferencias entre los valores observados y los valores predichos.`,
+**Nuestros Valores:**
+- Precisión científica
+- Innovación tecnológica
+- Facilidad de uso
+- Soporte especializado
+
+**Tecnología:**
+Utilizamos modelos matemáticos avanzados, regresión polinómica y análisis estadístico para predecir y visualizar el crecimiento bacteriano en diferentes condiciones.`,
     examples: [
-      'En nuestro caso, modelamos el crecimiento bacteriano (y) en función del tiempo (x)',
-      'La pendiente (m) representa la tasa de crecimiento',
-      'La intersección (b) representa el crecimiento inicial'
+      'Somos especialistas en análisis de crecimiento bacteriano',
+      'Nuestra plataforma utiliza inteligencia artificial y modelos matemáticos avanzados',
+      'Ayudamos a optimizar procesos de investigación en biotecnología'
     ],
-    relatedTopics: ['minimos_cuadrados', 'coeficiente_r2', 'rmse']
+    relatedTopics: ['servicios', 'productos', 'precios', 'contacto']
   },
 
-  minimos_cuadrados: {
-    keywords: ['mínimos cuadrados', 'minimos cuadrados', 'least squares', 'ajuste', 'fitting'],
-    title: 'Método de Mínimos Cuadrados',
-    definition: 'El método de mínimos cuadrados es una técnica de optimización utilizada para encontrar la mejor curva que se ajusta a un conjunto de datos, minimizando la suma de los cuadrados de las diferencias entre los valores observados y los valores predichos por el modelo.',
-    formula: 'SSE = Σ(yᵢ - ŷᵢ)²',
-    explanation: `Donde:
-- **SSE** (Suma de Errores al Cuadrado) es la cantidad que queremos minimizar
-- **yᵢ** son los valores observados reales
-- **ŷᵢ** son los valores predichos por el modelo
+  servicios: {
+    keywords: ['servicios', 'que ofrecen', 'que hacen', 'que ofrecemos', 'servicio', 'soluciones'],
+    title: 'Nuestros Servicios',
+    definition: 'Ofrecemos una plataforma completa de análisis y simulación de crecimiento bacteriano con herramientas interactivas y visualizaciones avanzadas.',
+    explanation: `**Servicios Principales:**
 
-Este método es ampliamente utilizado porque:
-1. Es matemáticamente sólido y bien establecido
-2. Proporciona estimadores insesgados cuando se cumplen ciertos supuestos
-3. Es computacionalmente eficiente
-4. Funciona bien con datos experimentales como los de crecimiento bacteriano`,
+1. **Simulador Interactivo**
+   - Proyección de crecimiento bacteriano
+   - Análisis de múltiples condiciones (temperatura, medio)
+   - Visualizaciones 2D y 3D interactivas
+   - Cálculo de métricas (R², RMSE, tasa de crecimiento)
+
+2. **Realidad Aumentada (AR)**
+   - Visualización 3D de gráficos de crecimiento
+   - Experiencia inmersiva desde dispositivos móviles
+   - Sin necesidad de descargas adicionales
+
+3. **Dashboard de Análisis**
+   - Visualización de datos experimentales
+   - Comparación entre diferentes condiciones
+   - Exportación de resultados
+
+4. **Asistente Inteligente**
+   - Chatbot especializado en crecimiento bacteriano
+   - Respuestas a preguntas técnicas y comerciales
+   - Soporte 24/7`,
     examples: [
-      'En nuestro simulador, usamos mínimos cuadrados para ajustar curvas polinómicas a los datos de crecimiento',
-      'El método encuentra automáticamente los coeficientes que mejor se ajustan a tus datos'
+      'Ofrecemos simulaciones precisas de crecimiento bacteriano',
+      'Nuestra plataforma incluye visualizaciones en 3D y realidad aumentada',
+      'Proporcionamos análisis estadísticos avanzados con métricas como R² y RMSE'
     ],
-    relatedTopics: ['regression_lineal', 'rmse', 'coeficiente_r2']
+    relatedTopics: ['productos', 'precios', 'empresa']
   },
 
-  coeficiente_r2: {
-    keywords: ['r²', 'r2', 'r cuadrado', 'coeficiente de determinación', 'coeficiente determinacion', 'r-squared'],
-    title: 'Coeficiente de Determinación (R²)',
-    definition: 'El coeficiente de determinación (R²) es una medida estadística que indica qué tan bien se ajusta el modelo a los datos observados. Varía entre 0 y 1, donde 1 indica un ajuste perfecto.',
-    formula: 'R² = 1 - (SSE / SST)',
-    explanation: `Donde:
-- **SSE** (Suma de Errores al Cuadrado) es la suma de las diferencias al cuadrado entre valores observados y predichos
-- **SST** (Suma Total de Cuadrados) es la suma de las diferencias al cuadrado entre valores observados y la media
+  productos: {
+    keywords: ['productos', 'producto', 'herramientas', 'plataforma', 'software', 'aplicacion'],
+    title: 'Nuestros Productos',
+    definition: 'BioGrowth Analytics ofrece una plataforma web completa para análisis y simulación de crecimiento bacteriano.',
+    explanation: `**Plataforma Web:**
+- Acceso desde cualquier dispositivo con navegador
+- Interfaz intuitiva y moderna
+- Sin instalación requerida
+- Actualizaciones automáticas
 
-**Interpretación:**
-- **R² = 1**: El modelo explica el 100% de la variabilidad (ajuste perfecto)
-- **R² > 0.9**: Excelente ajuste
-- **R² > 0.7**: Buen ajuste
-- **R² < 0.5**: Ajuste pobre
+**Características Principales:**
+- Simulador de crecimiento con múltiples modelos
+- Visualizaciones interactivas 2D/3D
+- Realidad Aumentada para visualización móvil
+- Dashboard de análisis de datos
+- API para integración con otros sistemas (próximamente)
 
-En nuestro simulador, un R² alto indica que el modelo de regresión describe bien el crecimiento bacteriano observado.`,
+**Tecnologías Utilizadas:**
+- Modelos de regresión polinómica
+- Machine Learning para predicciones
+- Visualización 3D con Three.js
+- AR.js para realidad aumentada`,
     examples: [
-      'Si R² = 0.95, significa que el modelo explica el 95% de la variabilidad en los datos',
-      'Un R² bajo puede indicar que necesitas un modelo más complejo o que hay mucho ruido en los datos'
+      'Nuestra plataforma web no requiere instalación',
+      'Incluimos visualizaciones 3D y realidad aumentada',
+      'Utilizamos modelos matemáticos avanzados para predicciones precisas'
     ],
-    relatedTopics: ['rmse', 'regression_lineal', 'minimos_cuadrados']
+    relatedTopics: ['servicios', 'precios', 'empresa']
   },
 
-  rmse: {
-    keywords: ['rmse', 'error cuadrático medio', 'root mean square error', 'raiz error cuadratico medio'],
-    title: 'Error Cuadrático Medio (RMSE)',
-    definition: 'El RMSE (Root Mean Square Error) es una medida del error promedio entre los valores predichos por el modelo y los valores observados. Se expresa en las mismas unidades que la variable dependiente.',
-    formula: 'RMSE = √(Σ(yᵢ - ŷᵢ)² / n)',
-    explanation: `Donde:
-- **yᵢ** son los valores observados reales
-- **ŷᵢ** son los valores predichos por el modelo
-- **n** es el número de observaciones
+  precios: {
+    keywords: ['precio', 'precios', 'costo', 'costos', 'plan', 'planes', 'tarifa', 'tarifas', 'pago', 'cuanto cuesta', 'precio'],
+    title: 'Planes y Precios',
+    definition: 'Ofrecemos diferentes planes adaptados a las necesidades de investigadores, laboratorios y empresas.',
+    explanation: `**Planes Disponibles:**
 
-**Interpretación:**
-- Un RMSE **bajo** indica que el modelo predice bien los valores
-- Un RMSE **alto** indica que hay grandes discrepancias entre predicciones y observaciones
-- El RMSE se mide en las mismas unidades que la variable dependiente (en nuestro caso, crecimiento normalizado)
+1. **Plan Básico** (Gratis)
+   - Acceso al simulador básico
+   - Visualizaciones 2D
+   - Hasta 10 simulaciones por mes
+   - Soporte por email
 
-**Ventajas del RMSE:**
-- Penaliza más los errores grandes (por el cuadrado)
-- Es fácil de interpretar (mismas unidades que los datos)
-- Útil para comparar diferentes modelos`,
+2. **Plan Profesional** (Desde $29/mes)
+   - Acceso completo al simulador
+   - Visualizaciones 2D y 3D
+   - Realidad Aumentada
+   - Simulaciones ilimitadas
+   - Exportación de datos
+   - Soporte prioritario
+   - Acceso a modelos avanzados
+
+3. **Plan Empresarial** (Personalizado)
+   - Todo lo del Plan Profesional
+   - API para integración
+   - Soporte dedicado
+   - Capacitación personalizada
+   - Análisis de datos personalizados
+   - SLA garantizado
+
+**Descuentos:**
+- Estudiantes: 50% de descuento
+- Instituciones educativas: 30% de descuento
+- Contratos anuales: 20% de descuento`,
     examples: [
-      'Si RMSE = 0.05, significa que en promedio, las predicciones se desvían 0.05 unidades del valor real',
-      'Un RMSE de 0.1 en crecimiento normalizado indica un error del 10%'
+      'Ofrecemos un plan gratuito para empezar',
+      'El plan profesional incluye todas las funcionalidades avanzadas',
+      'Tenemos descuentos especiales para estudiantes e instituciones'
     ],
-    relatedTopics: ['coeficiente_r2', 'minimos_cuadrados', 'regression_lineal']
+    relatedTopics: ['servicios', 'contacto', 'empresa']
   },
 
-  tasa_crecimiento: {
-    keywords: ['tasa de crecimiento', 'tasa crecimiento', 'growth rate', 'velocidad crecimiento', 'ritmo crecimiento'],
-    title: 'Tasa de Crecimiento',
-    definition: 'La tasa de crecimiento mide qué tan rápido está creciendo una población bacteriana entre dos puntos de tiempo específicos. Se calcula como el cambio en el crecimiento dividido por el cambio en el tiempo.',
-    formula: 'Tasa de Crecimiento = (g(t₂) - g(t₁)) / (t₂ - t₁)',
-    explanation: `Donde:
-- **g(t₁)** es el crecimiento en el tiempo inicial t₁
-- **g(t₂)** es el crecimiento en el tiempo final t₂
-- **t₂ - t₁** es el intervalo de tiempo
+  contacto: {
+    keywords: ['contacto', 'contactar', 'email', 'correo', 'telefono', 'direccion', 'soporte', 'ayuda', 'comunicarse'],
+    title: 'Contacto y Soporte',
+    definition: 'Puedes contactarnos a través de múltiples canales para consultas comerciales, técnicas o de soporte.',
+    explanation: `**Canales de Contacto:**
 
-**Interpretación:**
-- Una tasa **positiva** indica crecimiento
-- Una tasa **alta** indica crecimiento rápido
-- Una tasa **baja** indica crecimiento lento
-- Una tasa **negativa** indicaría decrecimiento (raro en bacterias)
+📧 **Email:**
+- General: contacto@biogrowthanalytics.com
+- Soporte técnico: soporte@biogrowthanalytics.com
+- Ventas: ventas@biogrowthanalytics.com
 
-**Factores que afectan la tasa:**
-- Temperatura: temperaturas óptimas aumentan la tasa
-- Medio de cultivo: medios ricos permiten mayor tasa de crecimiento
-- Fase de crecimiento: la tasa varía según la fase (lag, exponencial, estacionaria)`,
+💬 **Chat en Vivo:**
+- Disponible en la plataforma (horario comercial)
+- Respuesta en menos de 5 minutos
+
+📞 **Teléfono:**
+- Lunes a Viernes: 9:00 AM - 6:00 PM (GMT-3)
+- Soporte en español e inglés
+
+**Horarios de Atención:**
+- Soporte técnico: 24/7 (email)
+- Consultas comerciales: Lunes a Viernes 9:00-18:00
+- Soporte prioritario: Disponible en planes profesionales`,
     examples: [
-      'Si entre 2 y 4 horas el crecimiento pasa de 0.3 a 0.6, la tasa es (0.6-0.3)/(4-2) = 0.15 unidades/hora',
-      'Una tasa alta indica que las bacterias están en fase exponencial de crecimiento'
+      'Puedes contactarnos por email a contacto@biogrowthanalytics.com',
+      'Ofrecemos soporte técnico 24/7 por email',
+      'El chat en vivo está disponible en horario comercial'
     ],
-    relatedTopics: ['regression_lineal', 'crecimiento_bacteriano']
+    relatedTopics: ['precios', 'servicios', 'empresa']
   },
 
-  crecimiento_bacteriano: {
-    keywords: ['crecimiento bacteriano', 'crecimiento bacteria', 'bacterial growth', 'modelo crecimiento', 'fases crecimiento'],
-    title: 'Modelos de Crecimiento Bacteriano',
-    definition: 'El crecimiento bacteriano es el proceso por el cual las bacterias aumentan en número o biomasa. Se puede modelar matemáticamente usando diferentes funciones que describen las fases del crecimiento.',
-    formula: 'g(t) = f(t, parámetros)',
-    explanation: `**Fases del Crecimiento:**
-1. **Fase Lag**: Ajuste inicial, crecimiento lento
-2. **Fase Exponencial**: Crecimiento rápido y constante
-3. **Fase Estacionaria**: El crecimiento se estabiliza
-4. **Fase de Muerte**: Disminución de la población
+  caracteristicas: {
+    keywords: ['caracteristicas', 'funciones', 'funcionalidades', 'features', 'que incluye', 'que tiene'],
+    title: 'Características de la Plataforma',
+    definition: 'Nuestra plataforma incluye herramientas avanzadas para análisis y visualización de crecimiento bacteriano.',
+    explanation: `**Características Principales:**
 
-**Factores que Afectan el Crecimiento:**
-- **Temperatura**: Cada bacteria tiene una temperatura óptima (E. coli: ~37°C)
-- **Medio de cultivo**: Medios ricos vs limitados afectan la velocidad
-- **pH**: Las bacterias tienen rangos óptimos de pH
-- **Oxígeno**: Aerobias vs anaerobias
+✅ **Simulador Avanzado**
+- Múltiples modelos de crecimiento
+- Análisis de diferentes condiciones (temperatura, medio)
+- Proyecciones a futuro
+- Cálculo automático de métricas
 
-**En nuestro dataset:**
-- 3 temperaturas: 25°C, 30°C, 37°C
-- 2 tipos de medio: Rico y Limitado
-- 6 clústeres diferentes con patrones únicos`,
+✅ **Visualizaciones Interactivas**
+- Gráficos 2D interactivos
+- Visualizaciones 3D rotables
+- Realidad Aumentada para móviles
+- Exportación de gráficos
+
+✅ **Análisis Estadístico**
+- Coeficiente de determinación (R²)
+- Error cuadrático medio (RMSE)
+- Tasa de crecimiento
+- Intervalos de confianza
+
+✅ **Interfaz Moderna**
+- Diseño futurista y atractivo
+- Navegación intuitiva
+- Responsive (móvil, tablet, desktop)
+- Accesibilidad mejorada
+
+✅ **Asistente Inteligente**
+- Chatbot especializado
+- Respuestas instantáneas
+- Soporte 24/7`,
     examples: [
-      'E. coli K-12 crece mejor a 37°C en medio rico',
-      'A 25°C el crecimiento es más lento pero más estable',
-      'Los medios limitados reducen la tasa máxima de crecimiento'
+      'Incluimos visualizaciones 3D y realidad aumentada',
+      'Nuestro simulador calcula automáticamente métricas como R² y RMSE',
+      'La plataforma es completamente responsive y funciona en cualquier dispositivo'
     ],
-    relatedTopics: ['tasa_crecimiento', 'regression_lineal', 'minimos_cuadrados']
+    relatedTopics: ['servicios', 'productos', 'empresa']
   },
 
-  e_coli: {
-    keywords: ['e. coli', 'e coli', 'escherichia coli', 'k-12', 'cepa'],
-    title: 'Escherichia coli K-12',
-    definition: 'E. coli K-12 es una cepa de laboratorio de Escherichia coli ampliamente utilizada en investigación científica. Es una cepa no patógena y bien caracterizada.',
-    explanation: `**Características:**
-- Cepa de laboratorio segura para trabajar
-- Bien documentada y estudiada
-- Utilizada en investigación de crecimiento bacteriano
-- Genoma completamente secuenciado
+  casos_uso: {
+    keywords: ['caso de uso', 'casos de uso', 'para que sirve', 'usos', 'aplicaciones', 'quien lo usa'],
+    title: 'Casos de Uso',
+    definition: 'Nuestra plataforma es utilizada por investigadores, laboratorios y empresas en diversos contextos.',
+    explanation: `**Usuarios Típicos:**
 
-**En nuestro proyecto:**
-- Utilizamos datos experimentales de E. coli K-12
-- 6 condiciones diferentes (3 temperaturas × 2 medios)
-- Datos de crecimiento normalizado (0 a 1)
-- Modelados mediante regresión polinómica`,
+🔬 **Investigadores y Científicos**
+- Optimización de experimentos
+- Análisis de datos experimentales
+- Publicaciones científicas
+- Validación de modelos
+
+🏭 **Laboratorios y Empresas**
+- Control de calidad
+- Optimización de procesos
+- Desarrollo de productos
+- Análisis de producción
+
+🎓 **Instituciones Educativas**
+- Enseñanza de microbiología
+- Proyectos de investigación
+- Análisis de datos de estudiantes
+- Visualización educativa
+
+**Aplicaciones:**
+- Investigación en biotecnología
+- Desarrollo de fármacos
+- Producción de alimentos
+- Tratamiento de aguas residuales
+- Investigación médica`,
     examples: [
-      'E. coli K-12 es la cepa más utilizada en laboratorios de microbiología',
-      'Nuestro dataset incluye mediciones de crecimiento en diferentes condiciones'
+      'Ideal para laboratorios que necesitan analizar crecimiento bacteriano',
+      'Perfecto para investigadores que trabajan con modelos de crecimiento',
+      'Útil para instituciones educativas que enseñan microbiología'
     ],
-    relatedTopics: ['crecimiento_bacteriano', 'regression_lineal']
+    relatedTopics: ['servicios', 'productos', 'empresa']
+  },
+
+  beneficios: {
+    keywords: ['beneficios', 'ventajas', 'por que elegirnos', 'por que nosotros', 'ventaja competitiva'],
+    title: 'Beneficios de BioGrowth Analytics',
+    definition: 'Ofrecemos ventajas competitivas que nos distinguen en el mercado de análisis biotecnológico.',
+    explanation: `**Ventajas Clave:**
+
+🚀 **Tecnología Avanzada**
+- Modelos matemáticos de última generación
+- Visualizaciones 3D y AR innovadoras
+- Interfaz moderna y fácil de usar
+
+⚡ **Rapidez y Eficiencia**
+- Resultados instantáneos
+- Sin necesidad de instalación
+- Acceso desde cualquier dispositivo
+
+🎯 **Precisión Científica**
+- Modelos validados científicamente
+- Métricas estadísticas confiables
+- Análisis rigurosos
+
+💡 **Facilidad de Uso**
+- Interfaz intuitiva
+- Sin conocimientos técnicos avanzados
+- Tutoriales y documentación completa
+
+🔒 **Seguridad y Confiabilidad**
+- Datos seguros y privados
+- Actualizaciones regulares
+- Soporte técnico especializado
+
+💰 **Precios Competitivos**
+- Plan gratuito disponible
+- Precios accesibles
+- Descuentos para estudiantes e instituciones`,
+    examples: [
+      'Nuestra tecnología de visualización 3D y AR es única en el mercado',
+      'Ofrecemos resultados instantáneos sin necesidad de instalación',
+      'Tenemos precios competitivos con descuentos especiales'
+    ],
+    relatedTopics: ['servicios', 'productos', 'precios']
+  },
+
+  demo: {
+    keywords: ['demo', 'demostracion', 'prueba', 'probar', 'test', 'gratis', 'gratuito'],
+    title: 'Prueba Gratuita',
+    definition: 'Ofrecemos acceso gratuito para que puedas probar la plataforma antes de comprometerte.',
+    explanation: `**Plan Gratuito Incluye:**
+- Acceso al simulador básico
+- Visualizaciones 2D
+- Hasta 10 simulaciones por mes
+- Sin tarjeta de crédito requerida
+- Sin límite de tiempo
+
+**Cómo Empezar:**
+1. Regístrate en nuestra plataforma
+2. Accede al simulador
+3. Explora las funcionalidades
+4. Si te gusta, actualiza a un plan de pago
+
+**¿Necesitas más?**
+- Prueba el Plan Profesional con 14 días gratis
+- Sin compromiso
+- Cancela cuando quieras`,
+    examples: [
+      'Puedes probar la plataforma gratis sin tarjeta de crédito',
+      'El plan gratuito incluye hasta 10 simulaciones por mes',
+      'Ofrecemos 14 días gratis del plan profesional'
+    ],
+    relatedTopics: ['precios', 'servicios', 'contacto']
   }
 }
 
@@ -206,4 +347,3 @@ export function getRelatedTopics(topicKey: string): KnowledgeEntry[] {
     .map(key => knowledgeBase[key])
     .filter(Boolean) as KnowledgeEntry[]
 }
-

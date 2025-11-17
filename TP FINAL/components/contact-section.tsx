@@ -142,7 +142,7 @@ export function ContactSection() {
           <div className="mt-8 text-center">
             <p className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
               También puedes contactarnos directamente en:{' '}
-              <a href="mailto:contacto@biogrowthanalytics.com" className="hover:underline font-semibold transition-colors"
+              <a href="mailto:contacto@biogrowthanalytics.com" className="hover:underline font-semibold transition-colors cursor-pointer"
                 style={{ color: 'oklch(0.65 0.2 200)' }}
               >
                 contacto@biogrowthanalytics.com
