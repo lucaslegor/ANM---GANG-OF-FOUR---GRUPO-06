@@ -1,13 +1,36 @@
 'use client'
 
+/**
+ * Dashboard Section - Visualización de métricas y análisis
+ * 
+ * Muestra estadísticas generales y comparaciones entre clústeres
+ * utilizando los modelos de regresión segmentada
+ */
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BarChart3, TrendingUp, Activity, Zap } from 'lucide-react'
+import { BarChart3, TrendingUp, Activity, Zap, Clock, Target } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  BarChart, 
+  Bar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar
+} from 'recharts'
 import { useGrowthData } from '@/lib/use-growth-data'
 import { CLUSTER_OPTIONS, predictGrowth, calculateGrowthRate } from '@/lib/data-processor'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function DashboardSection() {
   const { clusters, loading, error } = useGrowthData()
@@ -18,14 +41,7 @@ export function DashboardSection() {
   const filteredClusters = useMemo(() => {
     return CLUSTER_OPTIONS.filter(option => {
       const tempMatch = selectedTemperature === 'all' || option.temperature === parseInt(selectedTemperature)
-      // Mapear 'rich'/'limited' del select a 'rico'/'limitado' de CLUSTER_OPTIONS
-      const mediumMap: Record<string, string> = {
-        'rich': 'rico',
-        'limited': 'limitado',
-        'all': 'all'
-      }
-      const mappedMedium = mediumMap[selectedMedium] || selectedMedium
-      const mediumMatch = selectedMedium === 'all' || option.medium === mappedMedium
+      const mediumMatch = selectedMedium === 'all' || option.medium === selectedMedium
       return tempMatch && mediumMatch
     })
   }, [selectedTemperature, selectedMedium])
@@ -46,40 +62,54 @@ export function DashboardSection() {
 
     if (filteredClusterData.length === 0) return null
 
-    // Calcular tasas de crecimiento promedio
+    // Calcular tasas de crecimiento promedio (entre 2h y 4h)
     const growthRates = filteredClusterData.map(cluster => {
       if (!cluster.model) return 0
-      const t1 = 2 * 60 // Convertir horas a minutos
-      const t2 = 4 * 60
-      return calculateGrowthRate(cluster.model, t1, t2)
+      return calculateGrowthRate(cluster.model, 2, 4) // horas
     })
 
     const avgGrowthRate = growthRates.reduce((a, b) => a + b, 0) / growthRates.length
 
-    // Calcular porcentaje de crecimiento en diferentes periodos
-    const growth24h = filteredClusterData.map(cluster => {
+    // Calcular crecimiento en diferentes periodos
+    const growth12h = filteredClusterData.map(cluster => {
       if (!cluster.model) return 0
       const growth0 = predictGrowth(cluster.model, 0)
-      const growth24 = predictGrowth(cluster.model, 24 * 60) // 24 horas en minutos
+      const growth12 = predictGrowth(cluster.model, 12) // 12 horas
       if (growth0 === 0) return 0
-      return ((growth24 - growth0) / growth0) * 100
+      return ((growth12 - growth0) / growth0) * 100
     })
 
-    const avgGrowth24h = growth24h.reduce((a, b) => a + b, 0) / growth24h.length
+    const avgGrowth12h = growth12h.reduce((a, b) => a + b, 0) / growth12h.length
+
+    // Tiempo crítico promedio
+    const avgCriticalTime = filteredClusterData.reduce((sum, cluster) => 
+      sum + cluster.model.t_crit, 0
+    ) / filteredClusterData.length
+
+    // R² promedio
+    const avgRSquared = filteredClusterData.reduce((sum, cluster) => 
+      sum + cluster.rSquared, 0
+    ) / filteredClusterData.length
 
     // Comparación entre clusters
     const clusterComparison = filteredClusterData.map((cluster, index) => {
       const option = filteredClusters[index]
       return {
-        name: option ? `${option.temperature}°C - ${option.medium === 'rico' ? 'Rico' : 'Limitado'}` : `Cluster ${index + 1}`,
+        name: option ? `${option.temperature}°C - ${option.medium === 'rico' ? 'Rico' : 'Lim.'}` : `Cluster ${index + 1}`,
         growthRate: growthRates[index] || 0,
-        growth24h: growth24h[index] || 0,
+        growth12h: growth12h[index] || 0,
+        rSquared: cluster.rSquared || 0,
+        criticalTime: cluster.model.t_crit || 0,
+        temperature: cluster.temperature,
+        medium: cluster.medium,
       }
     })
 
     return {
       avgGrowthRate,
-      avgGrowth24h,
+      avgGrowth12h,
+      avgCriticalTime,
+      avgRSquared,
       clusterComparison,
       totalClusters: filteredClusterData.length,
     }
@@ -90,370 +120,393 @@ export function DashboardSection() {
     if (!clusters || clusters.size === 0) return []
 
     const data: Array<{ time: number; [key: string]: number | string }> = []
-    const timePoints = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24].map(t => t * 60) // En minutos
+    const timePoints = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12] // horas
 
-    filteredClusters.forEach(option => {
-      const clusterKey = `${option.temperature}-${option.medium}`
-      const cluster = clusters.get(clusterKey)
-      if (!cluster || !cluster.model) return
+    timePoints.forEach(time => {
+      const point: { time: number; [key: string]: number | string } = { time }
+      
+      filteredClusters.forEach(option => {
+        const clusterKey = `${option.temperature}-${option.medium}`
+        const cluster = clusters.get(clusterKey)
+        if (!cluster || !cluster.model) return
 
-      timePoints.forEach(time => {
-        const existing = data.find(d => d.time === time / 60)
         const growth = predictGrowth(cluster.model, time)
-        const label = `${option.temperature}°C - ${option.medium === 'rico' ? 'Rico' : 'Limitado'}`
-
-        if (existing) {
-          existing[label] = growth
-        } else {
-          data.push({
-            time: time / 60, // Convertir a horas para visualización
-            [label]: growth,
-          })
-        }
+        const label = `${option.temperature}°C-${option.medium === 'rico' ? 'R' : 'L'}`
+        point[label] = growth
       })
+
+      data.push(point)
     })
 
-    return data.sort((a, b) => (a.time as number) - (b.time as number))
+    return data
   }, [clusters, filteredClusters])
 
-  const colors = [
-    'oklch(0.75 0.25 200)',
-    'oklch(0.7 0.28 320)',
-    'oklch(0.8 0.22 140)',
-    'oklch(0.65 0.25 240)',
-    'oklch(0.72 0.26 280)',
-    'oklch(0.78 0.24 160)',
-  ]
+  // Datos para gráfico de radar
+  const radarData = useMemo(() => {
+    if (!metrics) return []
+
+    return metrics.clusterComparison.map(cluster => ({
+      cluster: cluster.name,
+      'Tasa Crecimiento': (cluster.growthRate * 100).toFixed(2),
+      'R² (x100)': (cluster.rSquared * 100).toFixed(2),
+      'Crecimiento 12h': Math.min(cluster.growth12h, 100),
+    }))
+  }, [metrics])
+
+  const colors = {
+    primary: 'oklch(0.75 0.25 200)',
+    secondary: 'oklch(0.7 0.28 320)',
+    accent: 'oklch(0.8 0.22 140)',
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-current border-t-transparent rounded-full animate-spin mx-auto mb-4"
+            style={{ color: colors.primary }}
+          />
+          <p style={{ color: 'oklch(0.7 0.05 200)' }}>Cargando dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Card className="glass border-red-500/50">
+          <CardContent className="p-8 text-center">
+            <p className="text-red-400">Error al cargar datos: {error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
-    <section className="min-h-screen flex items-center justify-center py-20 pt-32 md:pt-40 relative border-t border-b"
-      style={{ 
-        borderColor: 'oklch(0.75 0.25 200 / 0.2)',
-        borderTopWidth: '1px',
-        borderBottomWidth: '1px',
-      }}
-    >
-      <div className="absolute inset-0 opacity-20"
-        style={{
-          background: 'radial-gradient(circle at 50% 50%, oklch(0.75 0.25 200 / 0.2), transparent 70%)',
-        }}
-      />
-      
-      <div className="container mx-auto px-4 relative z-10">
+    <section className="min-h-screen py-20 pt-32 md:pt-40 relative">
+      <div className="container mx-auto px-4 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance neon-glow"
+          <h2 
+            className="text-3xl md:text-4xl font-bold mb-4"
             style={{ color: 'oklch(0.95 0.01 200)' }}
           >
-            Dashboard de Estadísticas y Métricas
+            Dashboard de Análisis
           </h2>
-          <p className="text-lg text-pretty leading-relaxed"
+          <p className="text-lg leading-relaxed"
             style={{ color: 'oklch(0.7 0.05 200)' }}
           >
-            Visualiza métricas clave del crecimiento bacteriano. Filtra por temperatura y medio para análisis comparativos.
+            Métricas y comparaciones de los modelos de regresión segmentada
           </p>
         </motion.div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-20">
-            <Card className="glass neon-border">
-              <CardContent className="py-12 text-center">
-                <motion.div
-                  className="inline-block rounded-full border-4 border-current border-t-transparent"
-                  style={{ 
-                    color: 'oklch(0.75 0.25 200)',
-                    width: '48px',
-                    height: '48px',
-                  }}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                />
-                <p className="mt-4" style={{ color: 'oklch(0.7 0.05 200)' }}>
-                  Cargando métricas...
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {error && (
-          <Card className="glass border-red-500/50 mb-6">
-            <CardContent className="py-6">
-              <p style={{ color: 'oklch(0.7 0.05 200)' }}>
-                Error al cargar los datos: {error}
-              </p>
+        {/* Filtros */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-8"
+        >
+          <Card className="glass neon-border">
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                    Temperatura
+                  </label>
+                  <Select value={selectedTemperature} onValueChange={setSelectedTemperature}>
+                    <SelectTrigger className="glass border" style={{ borderColor: `${colors.primary} / 0.5` }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="glass">
+                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="25">25°C</SelectItem>
+                      <SelectItem value="30">30°C</SelectItem>
+                      <SelectItem value="37">37°C</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                    Medio de Cultivo
+                  </label>
+                  <Select value={selectedMedium} onValueChange={setSelectedMedium}>
+                    <SelectTrigger className="glass border" style={{ borderColor: `${colors.primary} / 0.5` }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="glass">
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="rico">Rico</SelectItem>
+                      <SelectItem value="limitado">Limitado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
+        </motion.div>
 
-        {!loading && !error && metrics && (
-          <div className="space-y-8">
-            {/* Filtros */}
+        {/* Métricas principales */}
+        {metrics && (
+          <AnimatePresence>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6, delay: 0.2 }}
+              className="grid md:grid-cols-4 gap-6 mb-8"
             >
-              <Card className="glass neon-border"
-                style={{
-                  borderColor: 'oklch(0.75 0.25 200 / 0.5)',
-                }}
-              >
+              {[
+                { 
+                  label: 'Tasa de Crecimiento Promedio', 
+                  value: (metrics.avgGrowthRate * 100).toFixed(4),
+                  unit: '%/h',
+                  icon: TrendingUp,
+                  color: colors.primary,
+                },
+                { 
+                  label: 'Crecimiento 12h', 
+                  value: metrics.avgGrowth12h.toFixed(2),
+                  unit: '%',
+                  icon: Activity,
+                  color: colors.secondary,
+                },
+                { 
+                  label: 'Tiempo Crítico Promedio', 
+                  value: metrics.avgCriticalTime.toFixed(2),
+                  unit: 'h',
+                  icon: Clock,
+                  color: colors.accent,
+                },
+                { 
+                  label: 'R² Promedio', 
+                  value: metrics.avgRSquared.toFixed(4),
+                  unit: '',
+                  icon: Target,
+                  color: colors.primary,
+                },
+              ].map((metric, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                >
+                  <Card className="glass neon-border hover:scale-105 transition-transform">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <metric.icon className="h-5 w-5" style={{ color: metric.color }} />
+                        <p className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
+                          {metric.label}
+                        </p>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold" style={{ color: metric.color }}>
+                          {metric.value}
+                        </span>
+                        <span className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
+                          {metric.unit}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        )}
+
+        {/* Gráficos */}
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Gráfico de Tendencias */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="glass neon-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                  <TrendingUp className="h-5 w-5" style={{ color: colors.primary }} />
+                  Tendencias de Crecimiento
+                </CardTitle>
+                <CardDescription style={{ color: 'oklch(0.7 0.05 200)' }}>
+                  Evolución del crecimiento normalizado en el tiempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.1 200 / 0.3)" />
+                      <XAxis 
+                        dataKey="time"
+                        label={{ value: 'Tiempo (h)', position: 'insideBottom', offset: -5 }}
+                        stroke="oklch(0.7 0.05 200)"
+                      />
+                      <YAxis 
+                        label={{ value: 'Crecimiento', angle: -90, position: 'insideLeft' }}
+                        stroke="oklch(0.7 0.05 200)"
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          background: 'oklch(0.12 0.04 240 / 0.95)',
+                          border: `1px solid ${colors.primary}`,
+                          borderRadius: '8px',
+                          color: 'oklch(0.95 0.01 200)',
+                        }}
+                      />
+                      <Legend />
+                      {filteredClusters.map((option, index) => {
+                        const label = `${option.temperature}°C-${option.medium === 'rico' ? 'R' : 'L'}`
+                        const colors = [
+                          '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#ef4444'
+                        ]
+                        return (
+                          <Line
+                            key={option.id}
+                            type="monotone"
+                            dataKey={label}
+                            stroke={colors[index % colors.length]}
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        )
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Gráfico de Barras - Tiempos Críticos */}
+          {metrics && (
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              <Card className="glass neon-border">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"
-                    style={{ color: 'oklch(0.95 0.01 200)' }}
-                  >
-                    <BarChart3 className="h-5 w-5" style={{ color: 'oklch(0.75 0.25 200)' }} />
-                    Filtros de Análisis
+                  <CardTitle className="flex items-center gap-2" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                    <BarChart3 className="h-5 w-5" style={{ color: colors.secondary }} />
+                    Tiempos Críticos
                   </CardTitle>
+                  <CardDescription style={{ color: 'oklch(0.7 0.05 200)' }}>
+                    Comparación de tiempos de cambio de fase
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm" style={{ color: 'oklch(0.95 0.01 200)' }}>
-                        Temperatura
-                      </label>
-                      <Select value={selectedTemperature} onValueChange={setSelectedTemperature}>
-                        <SelectTrigger className="glass border"
-                          style={{ borderColor: 'oklch(0.75 0.25 200 / 0.5)' }}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="glass border"
-                          style={{ borderColor: 'oklch(0.75 0.25 200 / 0.5)' }}
-                        >
-                          <SelectItem value="all">Todas las temperaturas</SelectItem>
-                          <SelectItem value="25">25°C</SelectItem>
-                          <SelectItem value="30">30°C</SelectItem>
-                          <SelectItem value="37">37°C</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm" style={{ color: 'oklch(0.95 0.01 200)' }}>
-                        Medio
-                      </label>
-                      <Select value={selectedMedium} onValueChange={setSelectedMedium}>
-                        <SelectTrigger className="glass border"
-                          style={{ borderColor: 'oklch(0.75 0.25 200 / 0.5)' }}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="glass border"
-                          style={{ borderColor: 'oklch(0.75 0.25 200 / 0.5)' }}
-                        >
-                          <SelectItem value="all">Todos los medios</SelectItem>
-                          <SelectItem value="rich">Rico</SelectItem>
-                          <SelectItem value="limited">Limitado</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="h-80 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={metrics.clusterComparison}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.1 200 / 0.3)" />
+                        <XAxis 
+                          dataKey="name"
+                          stroke="oklch(0.7 0.05 200)"
+                          angle={-45}
+                          textAnchor="end"
+                          height={100}
+                        />
+                        <YAxis 
+                          label={{ value: 't_crit (h)', angle: -90, position: 'insideLeft' }}
+                          stroke="oklch(0.7 0.05 200)"
+                        />
+                        <Tooltip 
+                          contentStyle={{
+                            background: 'oklch(0.12 0.04 240 / 0.95)',
+                            border: `1px solid ${colors.secondary}`,
+                            borderRadius: '8px',
+                            color: 'oklch(0.95 0.01 200)',
+                          }}
+                        />
+                        <Bar 
+                          dataKey="criticalTime" 
+                          fill={colors.secondary}
+                          name="Tiempo Crítico"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
+          )}
 
-            {/* Métricas principales */}
+          {/* Gráfico de Radar */}
+          {radarData.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="grid md:grid-cols-3 gap-6"
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="md:col-span-2"
             >
-              <Card className="glass neon-border"
-                style={{
-                  borderColor: 'oklch(0.75 0.25 200 / 0.5)',
-                  boxShadow: '0 0 20px oklch(0.75 0.25 200 / 0.2)',
-                }}
-              >
-                <CardContent className="py-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <TrendingUp className="h-8 w-8" style={{ color: 'oklch(0.75 0.25 200)' }} />
+              <Card className="glass neon-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                    <Zap className="h-5 w-5" style={{ color: colors.accent }} />
+                    Análisis Multidimensional
+                  </CardTitle>
+                  <CardDescription style={{ color: 'oklch(0.7 0.05 200)' }}>
+                    Comparación de métricas clave entre clústeres
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-96 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={radarData}>
+                        <PolarGrid stroke="oklch(0.3 0.1 200 / 0.3)" />
+                        <PolarAngleAxis 
+                          dataKey="cluster" 
+                          stroke="oklch(0.7 0.05 200)"
+                        />
+                        <PolarRadiusAxis stroke="oklch(0.7 0.05 200)" />
+                        <Radar
+                          name="Tasa Crecimiento"
+                          dataKey="Tasa Crecimiento"
+                          stroke={colors.primary}
+                          fill={colors.primary}
+                          fillOpacity={0.3}
+                        />
+                        <Radar
+                          name="R² (x100)"
+                          dataKey="R² (x100)"
+                          stroke={colors.secondary}
+                          fill={colors.secondary}
+                          fillOpacity={0.3}
+                        />
+                        <Radar
+                          name="Crecimiento 12h"
+                          dataKey="Crecimiento 12h"
+                          stroke={colors.accent}
+                          fill={colors.accent}
+                          fillOpacity={0.3}
+                        />
+                        <Legend />
+                        <Tooltip 
+                          contentStyle={{
+                            background: 'oklch(0.12 0.04 240 / 0.95)',
+                            border: `1px solid ${colors.accent}`,
+                            borderRadius: '8px',
+                            color: 'oklch(0.95 0.01 200)',
+                          }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div className="text-3xl font-bold neon-glow mb-2" style={{ color: 'oklch(0.75 0.25 200)' }}>
-                    {metrics.avgGrowthRate.toFixed(6)}
-                  </div>
-                  <p className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
-                    Tasa de Crecimiento Promedio
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="glass neon-border"
-                style={{
-                  borderColor: 'oklch(0.7 0.28 320 / 0.5)',
-                  boxShadow: '0 0 20px oklch(0.7 0.28 320 / 0.2)',
-                }}
-              >
-                <CardContent className="py-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Activity className="h-8 w-8" style={{ color: 'oklch(0.7 0.28 320)' }} />
-                  </div>
-                  <div className="text-3xl font-bold neon-glow mb-2" style={{ color: 'oklch(0.7 0.28 320)' }}>
-                    {metrics.avgGrowth24h.toFixed(1)}%
-                  </div>
-                  <p className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
-                    Crecimiento en 24 horas
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="glass neon-border"
-                style={{
-                  borderColor: 'oklch(0.8 0.22 140 / 0.5)',
-                  boxShadow: '0 0 20px oklch(0.8 0.22 140 / 0.2)',
-                }}
-              >
-                <CardContent className="py-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Zap className="h-8 w-8" style={{ color: 'oklch(0.8 0.22 140)' }} />
-                  </div>
-                  <div className="text-3xl font-bold neon-glow mb-2" style={{ color: 'oklch(0.8 0.22 140)' }}>
-                    {metrics.totalClusters}
-                  </div>
-                  <p className="text-sm" style={{ color: 'oklch(0.7 0.05 200)' }}>
-                    Clusters Analizados
-                  </p>
                 </CardContent>
               </Card>
             </motion.div>
-
-            {/* Gráfico de tendencias */}
-            {trendData.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
-                <Card className="glass neon-border"
-                  style={{
-                    borderColor: 'oklch(0.75 0.25 200 / 0.5)',
-                  }}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"
-                      style={{ color: 'oklch(0.95 0.01 200)' }}
-                    >
-                      <TrendingUp className="h-5 w-5" style={{ color: 'oklch(0.75 0.25 200)' }} />
-                      Tendencias de Crecimiento
-                    </CardTitle>
-                    <CardDescription style={{ color: 'oklch(0.7 0.05 200)' }}>
-                      Comparación de patrones de crecimiento por cluster
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-96 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={trendData}>
-                          <CartesianGrid strokeDasharray="3 3" 
-                            stroke="oklch(0.3 0.1 200 / 0.3)" 
-                          />
-                          <XAxis 
-                            dataKey="time" 
-                            label={{ value: 'Tiempo (horas)', position: 'insideBottom', offset: -5 }}
-                            stroke="oklch(0.7 0.05 200)"
-                          />
-                          <YAxis 
-                            label={{ value: 'Crecimiento Normalizado', angle: -90, position: 'insideLeft' }}
-                            domain={[0, 1]}
-                            stroke="oklch(0.7 0.05 200)"
-                          />
-                          <Tooltip 
-                            contentStyle={{
-                              background: 'oklch(0.12 0.04 240 / 0.95)',
-                              border: '1px solid oklch(0.75 0.25 200 / 0.5)',
-                              borderRadius: '8px',
-                              color: 'oklch(0.95 0.01 200)',
-                            }}
-                          />
-                          <Legend />
-                          {filteredClusters.map((option, index) => {
-                            const label = `${option.temperature}°C - ${option.medium === 'rico' ? 'Rico' : 'Limitado'}`
-                            return (
-                              <Line
-                                key={option.id}
-                                type="monotone"
-                                dataKey={label}
-                                stroke={colors[index % colors.length]}
-                                strokeWidth={2}
-                                dot={false}
-                                name={label}
-                              />
-                            )
-                          })}
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Comparación entre clusters */}
-            {metrics.clusterComparison.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
-                <Card className="glass neon-border"
-                  style={{
-                    borderColor: 'oklch(0.7 0.28 320 / 0.5)',
-                  }}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"
-                      style={{ color: 'oklch(0.95 0.01 200)' }}
-                    >
-                      <BarChart3 className="h-5 w-5" style={{ color: 'oklch(0.7 0.28 320)' }} />
-                      Comparación entre Clusters
-                    </CardTitle>
-                    <CardDescription style={{ color: 'oklch(0.7 0.05 200)' }}>
-                      Tasas de crecimiento por condición ambiental
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-96 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={metrics.clusterComparison}>
-                          <CartesianGrid strokeDasharray="3 3" 
-                            stroke="oklch(0.3 0.1 200 / 0.3)" 
-                          />
-                          <XAxis 
-                            dataKey="name" 
-                            stroke="oklch(0.7 0.05 200)"
-                            angle={-45}
-                            textAnchor="end"
-                            height={100}
-                          />
-                          <YAxis 
-                            stroke="oklch(0.7 0.05 200)"
-                          />
-                          <Tooltip 
-                            contentStyle={{
-                              background: 'oklch(0.12 0.04 240 / 0.95)',
-                              border: '1px solid oklch(0.7 0.28 320 / 0.5)',
-                              borderRadius: '8px',
-                              color: 'oklch(0.95 0.01 200)',
-                            }}
-                          />
-                          <Legend />
-                          <Bar dataKey="growthRate" fill="oklch(0.75 0.25 200)" name="Tasa de Crecimiento" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   )
 }
-

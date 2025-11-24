@@ -75,8 +75,8 @@ export function SimulatorSection() {
       const minTime = Math.min(...dataPoints.map(p => p.time))
       const maxTime = Math.max(...dataPoints.map(p => p.time))
       const requestedProjTime = parseFloat(projectionTime) || maxTime
-      // Limitar el tiempo de proyección al máximo permitido (convertir horas a minutos)
-      const projectionMaxTime = Math.max(maxTime, Math.min(requestedProjTime * 60, MAX_PROJECTION_TIME * 60))
+      // Limitar el tiempo de proyección al máximo permitido (en horas)
+      const projectionMaxTime = Math.max(maxTime, Math.min(requestedProjTime, MAX_PROJECTION_TIME))
       
       // Reducir puntos para mejor rendimiento (150 en lugar de 300)
       const step = (projectionMaxTime - minTime) / 150
@@ -339,11 +339,37 @@ export function SimulatorSection() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="mt-6 grid md:grid-cols-3 gap-4"
+                      className="mt-6 space-y-4"
                     >
+                      {/* Ecuaciones del modelo */}
+                      <div className="glass p-4 rounded-lg border"
+                        style={{ borderColor: `${currentColor} / 0.3` }}
+                      >
+                        <h4 className="font-semibold mb-3" style={{ color: 'oklch(0.95 0.01 200)' }}>
+                          Modelo Segmentado (Regresión Exponencial + Lineal)
+                        </h4>
+                        <div className="space-y-2 text-sm font-mono">
+                          <div>
+                            <span style={{ color: 'oklch(0.7 0.05 200)' }}>Fase Exponencial (t &lt; {clusterData.model.t_crit.toFixed(2)}h):</span>
+                            <div style={{ color: currentColor }} className="mt-1">
+                              y = {clusterData.model.exponential.a.toFixed(6)} · exp({clusterData.model.exponential.b.toFixed(6)} · t)
+                            </div>
+                          </div>
+                          <div className="pt-2">
+                            <span style={{ color: 'oklch(0.7 0.05 200)' }}>Fase Estacionaria (t ≥ {clusterData.model.t_crit.toFixed(2)}h):</span>
+                            <div style={{ color: currentColor }} className="mt-1">
+                              y = {clusterData.model.linear.m.toExponential(3)} · t + {clusterData.model.linear.c.toFixed(4)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Métricas */}
+                      <div className="grid md:grid-cols-4 gap-4">
                       {[
-                        { label: 'Coeficiente de Determinación', value: clusterData.rSquared, unit: 'R²' },
+                        { label: 'R²', value: clusterData.rSquared, unit: '' },
                         { label: 'RMSE', value: clusterData.rmse, unit: '' },
+                        { label: 'Tiempo Crítico', value: clusterData.model.t_crit, unit: 'h' },
                         { label: 'Puntos de Datos', value: clusterData.dataPoints.length, unit: '' },
                       ].map((metric, index) => (
                         <motion.div
@@ -385,6 +411,7 @@ export function SimulatorSection() {
                           </div>
                         </motion.div>
                       ))}
+                      </div>
                     </motion.div>
                   )}
                 </CardContent>

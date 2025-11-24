@@ -1,0 +1,158 @@
+{
+  "25-rico": {
+    "cluster_id": 1,
+    "temperature": 25,
+    "medium": "rico",
+    "medium_label": "Rico",
+    "t_crit": 3.52,
+    "exponential": {
+      "a": 0.061,
+      "b": 0.28
+    },
+    "linear": {
+      "m": 0.000145,
+      "c": 1.12
+    },
+    "metrics": {
+      "r_squared": 0.992,
+      "r_squared_adj": 0.992,
+      "rmse": 0.0089,
+      "sse": 0.0235
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 120,
+      "stationary_phase": 180
+    }
+  },
+  "30-rico": {
+    "cluster_id": 2,
+    "temperature": 30,
+    "medium": "rico",
+    "medium_label": "Rico",
+    "t_crit": 2.79,
+    "exponential": {
+      "a": 0.058,
+      "b": 0.41
+    },
+    "linear": {
+      "m": 0.00021,
+      "c": 1.25
+    },
+    "metrics": {
+      "r_squared": 0.995,
+      "r_squared_adj": 0.995,
+      "rmse": 0.0071,
+      "sse": 0.0152
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 95,
+      "stationary_phase": 205
+    }
+  },
+  "37-rico": {
+    "cluster_id": 3,
+    "temperature": 37,
+    "medium": "rico",
+    "medium_label": "Rico",
+    "t_crit": 2.06,
+    "exponential": {
+      "a": 0.055,
+      "b": 0.68
+    },
+    "linear": {
+      "m": 0.000105,
+      "c": 1.31
+    },
+    "metrics": {
+      "r_squared": 0.998,
+      "r_squared_adj": 0.998,
+      "rmse": 0.0045,
+      "sse": 0.0061
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 70,
+      "stationary_phase": 230
+    }
+  },
+  "25-limitado": {
+    "cluster_id": 4,
+    "temperature": 25,
+    "medium": "limitado",
+    "medium_label": "Limitado",
+    "t_crit": 4.12,
+    "exponential": {
+      "a": 0.060,
+      "b": 0.15
+    },
+    "linear": {
+      "m": 0.00035,
+      "c": 0.85
+    },
+    "metrics": {
+      "r_squared": 0.989,
+      "r_squared_adj": 0.989,
+      "rmse": 0.0105,
+      "sse": 0.0331
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 140,
+      "stationary_phase": 160
+    }
+  },
+  "30-limitado": {
+    "cluster_id": 5,
+    "temperature": 30,
+    "medium": "limitado",
+    "medium_label": "Limitado",
+    "t_crit": 3.52,
+    "exponential": {
+      "a": 0.062,
+      "b": 0.22
+    },
+    "linear": {
+      "m": 0.00028,
+      "c": 0.92
+    },
+    "metrics": {
+      "r_squared": 0.991,
+      "r_squared_adj": 0.991,
+      "rmse": 0.0095,
+      "sse": 0.0271
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 120,
+      "stationary_phase": 180
+    }
+  },
+  "37-limitado": {
+    "cluster_id": 6,
+    "temperature": 37,
+    "medium": "limitado",
+    "medium_label": "Limitado",
+    "t_crit": 2.67,
+    "exponential": {
+      "a": 0.059,
+      "b": 0.35
+    },
+    "linear": {
+      "m": 0.00019,
+      "c": 0.98
+    },
+    "metrics": {
+      "r_squared": 0.994,
+      "r_squared_adj": 0.994,
+      "rmse": 0.0077,
+      "sse": 0.0178
+    },
+    "data_points": {
+      "total": 300,
+      "exponential_phase": 91,
+      "stationary_phase": 209
+    }
+  }
+}

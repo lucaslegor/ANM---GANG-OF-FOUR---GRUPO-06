@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { SimulatorSection } from '@/components/simulator-section'
 import { DashboardSection } from '@/components/dashboard-section'
+import { ModelAnalysisSection } from '@/components/model-analysis-section'
 import { ParticleBackground } from '@/components/particle-background'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Lock, BarChart3, Play } from 'lucide-react'
+import { ArrowLeft, Lock, BarChart3, Play, FlaskConical } from 'lucide-react'
 import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -58,6 +59,10 @@ export default function SimulatorPage() {
                 <BarChart3 className="h-4 w-4" />
                 Dashboard
               </TabsTrigger>
+              <TabsTrigger value="analisis" className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4" />
+                Análisis de Modelos
+              </TabsTrigger>
               <TabsTrigger value="simulador" className="flex items-center gap-2">
                 <Play className="h-4 w-4" />
                 Simulador
@@ -65,6 +70,9 @@ export default function SimulatorPage() {
             </TabsList>
             <TabsContent value="dashboard">
               <DashboardSection />
+            </TabsContent>
+            <TabsContent value="analisis">
+              <ModelAnalysisSection />
             </TabsContent>
             <TabsContent value="simulador">
               <SimulatorSection />
