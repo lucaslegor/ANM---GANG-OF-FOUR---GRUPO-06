@@ -1,14 +1,13 @@
 /**
  * Data Processor con Regresión Segmentada
- * 
- * Implementa la metodología exacta del paper:
+ * * Implementa la metodología exacta del paper:
  * - Fase exponencial: y = a·exp(b·t) para t < t_crit
  * - Fase estacionaria: y = m·t + c para t >= t_crit
- * 
- * Los coeficientes fueron calculados usando mínimos cuadrados
- * y están almacenados en growth-models.json
+ * * Los coeficientes fueron calculados usando mínimos cuadrados
+ * y están almacenados en growth-model.json
  */
 
+// CORRECCIÓN 1: Nombre del archivo en singular
 import growthModelsData from './growth-models.json';
 
 export interface DataPoint {
@@ -24,20 +23,20 @@ export interface SegmentedModel {
   temperature: number;
   medium: string;
   medium_label: string;
-  t_crit: number; // Tiempo crítico de cambio de fase
+  t_crit: number;
   exponential: {
-    a: number; // Coeficiente a en y = a·exp(b·t)
-    b: number; // Coeficiente b en y = a·exp(b·t)
+    a: number;
+    b: number;
   };
   linear: {
-    m: number; // Pendiente en y = m·t + c
-    c: number; // Intersección en y = m·t + c
+    m: number;
+    c: number;
   };
   metrics: {
-    r_squared: number; // Coeficiente de determinación
-    r_squared_adj: number; // R² ajustado
-    rmse: number; // Root Mean Square Error
-    sse: number; // Sum of Squared Errors
+    r_squared: number;
+    r_squared_adj: number;
+    rmse: number;
+    sse: number;
   };
   data_points: {
     total: number;
@@ -73,40 +72,44 @@ export const CLUSTER_OPTIONS: ClusterOption[] = [
 ];
 
 // Cargar modelos pre-calculados
-const GROWTH_MODELS = growthModelsData as Record<string, SegmentedModel>;
+const GROWTH_MODELS = growthModelsData as unknown as Record<string, SegmentedModel>;
 
 /**
- * Función para parsear el CSV
+ * Función para parsear el CSV (CORRECCIÓN 2: Soporte para comas y puntos)
  */
 export function parseCSV(csvText: string): DataPoint[] {
   const lines = csvText.trim().split('\n');
-  const headers = lines[0].split(';').map(h => h.trim());
-  
   const data: DataPoint[] = [];
   
+  // Empezamos desde 1 para saltar el encabezado
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
-    const values = line.split(';').map(v => v.trim());
+    // Detectamos si usa ; o , para separar columnas
+    const separator = line.indexOf(';') !== -1 ? ';' : ',';
+    const values = line.split(separator).map(v => v.trim());
+
     if (values.length < 6) continue;
     
     try {
       const temperature = parseFloat(values[1]);
       const medium = values[2].toLowerCase().trim();
-      const timeHours = parseFloat(values[4].replace(',', '.').trim());
-      const growthStr = values[5].replace(',', '.').trim();
-      const growth = parseFloat(growthStr);
       
-      // Validar que los valores sean números válidos
+      // Reemplaza la coma decimal por punto antes de convertir
+      const timeVal = values[4].replace(',', '.').trim();
+      const growthVal = values[5].replace(',', '.').trim();
+      
+      const timeHours = parseFloat(timeVal);
+      const growth = parseFloat(growthVal);
+      
       if (isNaN(temperature) || isNaN(timeHours) || isNaN(growth)) {
         continue;
       }
       
-      // Normalizar nombres de medio
       const normalizedMedium = medium === 'rico' || medium === 'rich' ? 'rico' : 'limitado';
       
-      // Crear identificador de cluster
+      // Crear identificador de cluster que coincida con el JSON (ej: "25-rico")
       const cluster = `${temperature}-${normalizedMedium}`;
       
       data.push({
@@ -132,11 +135,11 @@ export function groupByCluster(data: DataPoint[]): Map<string, ClusterData> {
   
   for (const point of data) {
     if (!clusters.has(point.cluster)) {
-      // Obtener modelo pre-calculado
       const model = GROWTH_MODELS[point.cluster];
       
       if (!model) {
-        console.warn(`No model found for cluster: ${point.cluster}`);
+        // Silenciamos el warning si no es crítico, o revisa si los nombres en JSON coinciden
+        // console.warn(`No model found for cluster: ${point.cluster}`);
         continue;
       }
       
@@ -162,89 +165,46 @@ export function groupByCluster(data: DataPoint[]): Map<string, ClusterData> {
   return clusters;
 }
 
-/**
- * Predecir crecimiento usando el modelo segmentado
- * 
- * @param model - Modelo segmentado del cluster
- * @param time - Tiempo en horas
- * @returns Crecimiento normalizado predicho
- */
 export function predictGrowth(model: SegmentedModel, time: number): number {
   if (time < 0) return 0;
   
   let prediction: number;
   
   if (time < model.t_crit) {
-    // Fase exponencial: y = a·exp(b·t)
+    // Fase exponencial
     const { a, b } = model.exponential;
-    
-    // Clip del exponente para evitar overflow numérico
     const exponent = Math.min(Math.max(b * time, -100), 100);
     prediction = a * Math.exp(exponent);
   } else {
-    // Fase estacionaria: y = m·t + c
+    // Fase estacionaria
     const { m, c } = model.linear;
     prediction = m * time + c;
   }
   
-  // Asegurar que esté entre 0 y 2 (algunos datos pueden superar 1)
   return Math.max(0, Math.min(2, prediction));
 }
 
-/**
- * Calcular tasa de crecimiento entre dos tiempos
- * 
- * La tasa se calcula como: (g(t2) - g(t1)) / (t2 - t1)
- * 
- * @param model - Modelo segmentado del cluster
- * @param t1 - Tiempo inicial en horas
- * @param t2 - Tiempo final en horas
- * @returns Tasa de crecimiento
- */
 export function calculateGrowthRate(
   model: SegmentedModel,
   t1: number,
   t2: number
 ): number {
   if (t2 <= t1) return 0;
-  
   const growth1 = predictGrowth(model, t1);
   const growth2 = predictGrowth(model, t2);
-  
   return (growth2 - growth1) / (t2 - t1);
 }
 
-/**
- * Calcular la derivada analítica del modelo en un tiempo dado
- * 
- * Para fase exponencial: dy/dt = a·b·exp(b·t)
- * Para fase estacionaria: dy/dt = m
- * 
- * @param model - Modelo segmentado del cluster
- * @param time - Tiempo en horas
- * @returns Derivada (tasa instantánea de crecimiento)
- */
 export function calculateDerivative(model: SegmentedModel, time: number): number {
   if (time < model.t_crit) {
-    // Fase exponencial: dy/dt = a·b·exp(b·t)
     const { a, b } = model.exponential;
     const exponent = Math.min(Math.max(b * time, -100), 100);
     return a * b * Math.exp(exponent);
   } else {
-    // Fase estacionaria: dy/dt = m
     return model.linear.m;
   }
 }
 
-/**
- * Generar serie temporal de crecimiento
- * 
- * @param model - Modelo segmentado del cluster
- * @param tStart - Tiempo inicial
- * @param tEnd - Tiempo final
- * @param numPoints - Número de puntos a generar
- * @returns Array de puntos [tiempo, crecimiento]
- */
 export function generateTimeSeries(
   model: SegmentedModel,
   tStart: number,
@@ -258,27 +218,19 @@ export function generateTimeSeries(
     const time = tStart + i * step;
     const growth = predictGrowth(model, time);
     const phase = time < model.t_crit ? 'exponential' : 'stationary';
-    
     points.push({ time, growth, phase });
   }
   
   return points;
 }
 
-/**
- * Obtener el modelo para un cluster específico
- */
 export function getModel(clusterId: string): SegmentedModel | null {
   const option = CLUSTER_OPTIONS.find(opt => opt.id === clusterId);
   if (!option) return null;
-  
   const clusterKey = `${option.temperature}-${option.medium}`;
   return GROWTH_MODELS[clusterKey] || null;
 }
 
-/**
- * Obtener información del modelo en formato legible
- */
 export function getModelDescription(model: SegmentedModel): {
   exponentialEquation: string;
   linearEquation: string;
@@ -295,10 +247,6 @@ export function getModelDescription(model: SegmentedModel): {
   };
 }
 
-/**
- * Validar continuidad del modelo en t_crit
- * (para verificación - debe ser continuo)
- */
 export function validateContinuity(model: SegmentedModel): {
   continuous: boolean;
   gap: number;
@@ -306,23 +254,15 @@ export function validateContinuity(model: SegmentedModel): {
   valueLin: number;
 } {
   const t = model.t_crit;
-  
-  // Valor en fase exponencial
   const { a, b } = model.exponential;
   const exponent = Math.min(Math.max(b * t, -100), 100);
   const valueExp = a * Math.exp(exponent);
   
-  // Valor en fase lineal
   const { m, c } = model.linear;
   const valueLin = m * t + c;
   
   const gap = Math.abs(valueExp - valueLin);
-  const continuous = gap < 0.01; // Tolerancia de 1%
+  const continuous = gap < 0.01;
   
-  return {
-    continuous,
-    gap,
-    valueExp,
-    valueLin,
-  };
+  return { continuous, gap, valueExp, valueLin };
 }

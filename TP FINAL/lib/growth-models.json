@@ -4,25 +4,25 @@
     "temperature": 25,
     "medium": "rico",
     "medium_label": "Rico",
-    "t_crit": 3.52,
+    "t_crit": 3.27,
     "exponential": {
-      "a": 0.061,
-      "b": 0.28
+      "a": 0.00931,
+      "b": 1.406
     },
     "linear": {
-      "m": 0.000145,
-      "c": 1.12
+      "m": 0.01623,
+      "c": 0.861
     },
     "metrics": {
-      "r_squared": 0.992,
-      "r_squared_adj": 0.992,
-      "rmse": 0.0089,
-      "sse": 0.0235
+      "r_squared": 0.947,
+      "r_squared_adj": 0.947,
+      "rmse": 0.0091,
+      "sse": 0.0245
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 120,
-      "stationary_phase": 180
+      "exponential_phase": 109,
+      "stationary_phase": 191
     }
   },
   "30-rico": {
@@ -30,25 +30,25 @@
     "temperature": 30,
     "medium": "rico",
     "medium_label": "Rico",
-    "t_crit": 2.79,
+    "t_crit": 2.55,
     "exponential": {
-      "a": 0.058,
-      "b": 0.41
+      "a": 0.01148,
+      "b": 1.674
     },
     "linear": {
-      "m": 0.00021,
-      "c": 1.25
+      "m": 0.01062,
+      "c": 0.876
     },
     "metrics": {
-      "r_squared": 0.995,
-      "r_squared_adj": 0.995,
-      "rmse": 0.0071,
-      "sse": 0.0152
+      "r_squared": 0.922,
+      "r_squared_adj": 0.922,
+      "rmse": 0.0082,
+      "sse": 0.0163
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 95,
-      "stationary_phase": 205
+      "exponential_phase": 85,
+      "stationary_phase": 215
     }
   },
   "37-rico": {
@@ -56,25 +56,25 @@
     "temperature": 37,
     "medium": "rico",
     "medium_label": "Rico",
-    "t_crit": 2.06,
+    "t_crit": 1.82,
     "exponential": {
-      "a": 0.055,
-      "b": 0.68
+      "a": 0.01432,
+      "b": 2.182
     },
     "linear": {
-      "m": 0.000105,
-      "c": 1.31
+      "m": 0.00675,
+      "c": 0.899
     },
     "metrics": {
-      "r_squared": 0.998,
-      "r_squared_adj": 0.998,
-      "rmse": 0.0045,
-      "sse": 0.0061
+      "r_squared": 0.918,
+      "r_squared_adj": 0.918,
+      "rmse": 0.0055,
+      "sse": 0.0072
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 70,
-      "stationary_phase": 230
+      "exponential_phase": 61,
+      "stationary_phase": 239
     }
   },
   "25-limitado": {
@@ -82,25 +82,25 @@
     "temperature": 25,
     "medium": "limitado",
     "medium_label": "Limitado",
-    "t_crit": 4.12,
+    "t_crit": 4.00,
     "exponential": {
-      "a": 0.060,
-      "b": 0.15
+      "a": 0.00873,
+      "b": 1.103
     },
     "linear": {
-      "m": 0.00035,
-      "c": 0.85
+      "m": 0.01519,
+      "c": 0.674
     },
     "metrics": {
-      "r_squared": 0.989,
-      "r_squared_adj": 0.989,
-      "rmse": 0.0105,
-      "sse": 0.0331
+      "r_squared": 0.947,
+      "r_squared_adj": 0.947,
+      "rmse": 0.0098,
+      "sse": 0.0312
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 140,
-      "stationary_phase": 160
+      "exponential_phase": 133,
+      "stationary_phase": 167
     }
   },
   "30-limitado": {
@@ -110,23 +110,23 @@
     "medium_label": "Limitado",
     "t_crit": 3.52,
     "exponential": {
-      "a": 0.062,
-      "b": 0.22
+      "a": 0.01014,
+      "b": 1.225
     },
     "linear": {
-      "m": 0.00028,
-      "c": 0.92
+      "m": 0.00889,
+      "c": 0.803
     },
     "metrics": {
-      "r_squared": 0.991,
-      "r_squared_adj": 0.991,
-      "rmse": 0.0095,
-      "sse": 0.0271
+      "r_squared": 0.929,
+      "r_squared_adj": 0.929,
+      "rmse": 0.0089,
+      "sse": 0.0255
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 120,
-      "stationary_phase": 180
+      "exponential_phase": 117,
+      "stationary_phase": 183
     }
   },
   "37-limitado": {
@@ -136,23 +136,23 @@
     "medium_label": "Limitado",
     "t_crit": 2.67,
     "exponential": {
-      "a": 0.059,
-      "b": 0.35
+      "a": 0.00899,
+      "b": 1.604
     },
     "linear": {
-      "m": 0.00019,
-      "c": 0.98
+      "m": 0.00465,
+      "c": 0.757
     },
     "metrics": {
-      "r_squared": 0.994,
-      "r_squared_adj": 0.994,
-      "rmse": 0.0077,
-      "sse": 0.0178
+      "r_squared": 0.921,
+      "r_squared_adj": 0.921,
+      "rmse": 0.0081,
+      "sse": 0.0191
     },
     "data_points": {
       "total": 300,
-      "exponential_phase": 91,
-      "stationary_phase": 209
+      "exponential_phase": 89,
+      "stationary_phase": 211
     }
   }
 }
